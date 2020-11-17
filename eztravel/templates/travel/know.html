@@ -1,0 +1,15 @@
+{% extends 'travel/index.html' %}
+
+{% block content %}
+
+    <ul class="list">
+        {% for post in posts %}
+            <h3><a href="post/{{ post.pk }}">{{ post.title }}</a></h3>
+            <div class="info">
+                <div class="published-date"><span>Date | </span>{{ post.published_date }}</div>
+                <div class="author"><span>Author | </span>{{ post.author }}</div>
+            </div>
+        {% endfor %}
+    </ul>
+
+{% endblock%}

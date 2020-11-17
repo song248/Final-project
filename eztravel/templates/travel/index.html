@@ -26,6 +26,7 @@
     <meta name="theme-color" content="#563d7c">
 
     <style>
+        
         body{
             background-image: url(static/img/tower_pre2.jpg);
             background-size: cover;
@@ -40,7 +41,7 @@
             user-select: none;
         }
 
-        @media (min-width: 768px) {
+        @media (min-width: 900px) {
             .bd-placeholder-img-lg {
                 font-size: 3.5rem;
             }
@@ -55,33 +56,33 @@
 <!--<body class="text-center" background="static/img/tower_pre.jpg">-->
 <body class="text-center">
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-
-        <!--<header class="intro-header" style="background-image: url({%static 'img/tower_1.jpg' %})">  -->
         <header class="masthead mb-auto">
             <div class="inner">
                 <h3 class="masthead-brand">EZtravel</h3>
                 <nav class="nav nav-masthead justify-content-center">
-                    <a class="nav-link active" href="#">홈</a>
-                    <a class="nav-link" href="#">공지사항</a>
-                    <a class="nav-link" href="#">이용안내</a>
-                    <a class="nav-link" href="#">로그인</a>
+                    <a class="nav-link" href="{% url 'index' %}">홈</a>
+                    <!--<a class="nav-link" href="#">공지사항</a>-->
+                    <a class="nav-link" href="{% url 'know' %}">공지사항</a>
+                    <a class="nav-link" href="{% url 'howto' %}">이용안내</a>
+                    <a class="nav-link" href="{% url 'login' %}">로그인</a>
                 </nav>
             </div>
         </header>
-
+    
+        {% block content %}
         <main role="main" class="inner cover">
             <h1 class="cover-heading"><br><br>EZ Travel</h1>
             <p class="lead">광고 속 그 장소가 궁금하다면<br>
                 인스타 속 그 장소가 궁금하다면<br>
-                사진을 업로드하고 해당 장소를 확인해보세요!</p>
+                사진을 업로드하고 해당 장소를 확인해보세요!<br><br></p>
             <p class="lead">
-                <a href="#" class="btn btn-lg btn-secondary">확인하러 가기</a>
+                <a href="{% url 'upload' %}" class="btn btn-lg btn-secondary">확인하러 가기</a>
             </p>
         </main>
-
+        {% endblock %}
         <footer class="mastfoot mt-auto">
             <div class="inner">
-                <p>Final project by <a href="https://naver.com">1조</a>.</p>
+                <p>Final project by <a href="https://github.com/song248/Final-project.git">1조</a>.</p>
             </div>
         </footer>
     </div>
