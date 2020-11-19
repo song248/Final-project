@@ -1,0 +1,11 @@
+{% extends 'travel/index.html' %}
+
+{% block content %}
+    <div class="container">
+        <ul class="list">
+            <h3><a href="">{{ post.title }}</a></h3>
+            <div class="content">{{ post.content|linebreaksbr }}</div>
+        </ul>
+    </div>
+{% endblock %}
+

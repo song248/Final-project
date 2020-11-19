@@ -53,18 +53,17 @@
     <link rel="stylesheet" href="{% static 'css/cover.css' %}">
 </head>
 
-<!--<body class="text-center" background="static/img/tower_pre.jpg">-->
 <body class="text-center">
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
         <header class="masthead mb-auto">
             <div class="inner">
-                <h3 class="masthead-brand">EZtravel</h3>
+                <h3 class="masthead-brand">🌏EZtravel</h3>
                 <nav class="nav nav-masthead justify-content-center">
                     <a class="nav-link" href="{% url 'index' %}">홈</a>
                     <!--<a class="nav-link" href="#">공지사항</a>-->
                     <a class="nav-link" href="{% url 'know' %}">공지사항</a>
                     <a class="nav-link" href="{% url 'howto' %}">이용안내</a>
-                    <a class="nav-link" href="{% url 'login' %}">로그인</a>
+                    <a class="nav-link" href="{% url 'user:login' %}">로그인</a>
                 </nav>
             </div>
         </header>
@@ -72,8 +71,8 @@
         {% block content %}
         <main role="main" class="inner cover">
             <h1 class="cover-heading"><br><br>EZ Travel</h1>
-            <p class="lead">광고 속 그 장소가 궁금하다면<br>
-                인스타 속 그 장소가 궁금하다면<br>
+            <p class="lead">광고 속 그 장소가 궁금하다면?<br>
+                인스타 속 그 장소가 궁금하다면?<br>
                 사진을 업로드하고 해당 장소를 확인해보세요!<br><br></p>
             <p class="lead">
                 <a href="{% url 'upload' %}" class="btn btn-lg btn-secondary">확인하러 가기</a>

@@ -20,6 +20,13 @@ def know(request):
     } 
     return render(request, 'travel/know.html', context)
 
+def know_show(request, pk):
+    post = Post.objects.get(pk=pk)
+    context={
+        'post':post
+    }
+    return render(request, 'travel/know_show.html', context)
+
 def howto(request):
     return render(request, 'travel/howto.html')
 
@@ -28,4 +35,5 @@ def login(request):
 
 def upload(request):
     return render(request, 'travel/map.html')
+
 
