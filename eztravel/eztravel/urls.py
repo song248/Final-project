@@ -33,11 +33,17 @@ urlpatterns = [
     path('howto/', travel.views.howto, name='howto'),
     path('know/', travel.views.know, name='know'),
     #path('login/', user.views.LoginView, name='login'),
-    path('login/', include('user.urls', 'login'), name='login'),
+    #path('login/', include('user.urls', 'login'), name='login'),
+    path('login/', include('account.urls', 'login')),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('upload/', travel.views.upload, name='upload'),
     # path('know/post/<int:id>', travel.views.know_show)
     url(r'^know/post/(?P<pk>\d+)/', travel.views.know_show), 
 ]
-
-
+"""
+                    {% if request.user.is_authenticated %}
+                        <a class="nav-link" href="{% url 'user:login' %}">로그아웃</a>
+                    {% else %}
+                        <a class="nav-link" href="{% url 'user:login' %}">로그인</a>
+                    {% endif %}
+"""

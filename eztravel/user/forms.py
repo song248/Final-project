@@ -5,7 +5,7 @@ from django import forms
 
 class CreateUserForm(UserCreationForm): # 내장 회원가입 폼을 상속받아서 확장한다.
     email = forms.EmailField(required=True) # 이메일 필드 추가
-    birth = forms.CharField(required=True) # 이메일 필드 추가
+    birth = forms.CharField(required=True)
 
     class Meta:
         model = User
