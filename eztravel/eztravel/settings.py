@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'travel',
-    'user',
     'account',
 ]
 
@@ -130,4 +129,6 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 ) 
 
-
+LOGIN_REDIRECT_URL = '/main'
+LOGOUT_REDIRECT_URL = '/login'
+LOGIN_URL = '/login'

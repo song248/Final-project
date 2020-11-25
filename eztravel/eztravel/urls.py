@@ -15,11 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-# from travel.views import *
-import travel.views
-import user.views
+from django.conf import settings
+from django.conf.urls.static import static
 from travel import views
-from user import views
 from django.conf.urls import url
 from django.contrib.auth.views import LogoutView
 
@@ -29,21 +27,23 @@ urlpatterns = [
     # url(r'^howto/', views.howto, name='howto'),
 
     path('admin/', admin.site.urls),
-    path('', travel.views.index, name = 'index'),
-    path('howto/', travel.views.howto, name='howto'),
-    path('know/', travel.views.know, name='know'),
+    path('', views.index, name = 'index'),
+    path('main/', views.mainview.as_view(), name='main'),
+    path('howto/', views.howto, name='howto'),
+    path('know/', views.know, name='know'),
     #path('login/', user.views.LoginView, name='login'),
     #path('login/', include('user.urls', 'login'), name='login'),
     path('login/', include('account.urls', 'login')),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('upload/', travel.views.upload, name='upload'),
+    path('upload/', views.upload, name='upload'),
     # path('know/post/<int:id>', travel.views.know_show)
-    url(r'^know/post/(?P<pk>\d+)/', travel.views.know_show), 
-]
+    url(r'^post/(?P<pk>\d+)/', views.know_show), 
+
+    path('loading/', views.PostTemplateView.as_view(), name='loading'),
+    # path('post_json/', views.post_json, name='json_view'),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 """
-                    {% if request.user.is_authenticated %}
-                        <a class="nav-link" href="{% url 'user:login' %}">로그아웃</a>
-                    {% else %}
-                        <a class="nav-link" href="{% url 'user:login' %}">로그인</a>
-                    {% endif %}
+beforeSend
+complete
 """

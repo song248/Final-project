@@ -5,7 +5,7 @@
     <div class="col-md-9 col-lg-8 mx-auto" id="width-modify">
         <h3 class="login-heading mb-4">LOG IN</h3>
 
-        <form method="POST" class="post-form" action="{% url 'travel:index' %}">
+        <form method="POST" class="post-form" action="{% url 'account:login' %}">
             {% csrf_token %}
             <div class="form-label-group">
                 <input name="username" type="text" id="usr" class="form-control" placeholder="이메일"
@@ -36,12 +36,13 @@
                     </div>
                 {% endfor %}
             {% endif %}
-            <button class="btn btn-lg btn-primary btn-block btn-login text-uppercase font-weight-bold mb-2" type="submit">로그인</button>
+            <button class="btn btn-lg btn-primary btn-block btn-login font-weight-bold mb-2" type="submit">로그인</button>
             <!-- <div class="text-center"> Forgot password? </div> -->
         </form><br>
         
         <div class="reg-btn">
-            <a href="{% url 'login:signup' %}"><button class="btn btn-lg btn-info btn-block btn-login text-uppercase font-weight-bold mb-2" type="link">회원가입</button></a>
+            <a href="{% url 'login:signup' %}">
+            <button class="btn btn-lg btn-info btn-block btn-login font-weight-bold mb-2" type="link">회원가입</button></a>
         </div>
     </div>
 </div>
