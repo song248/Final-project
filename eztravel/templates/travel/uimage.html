@@ -33,7 +33,7 @@
 </script>
 
 <div id="uploading">
-    <h1>이미지 업로드</h1>
+    <h2>이미지 업로드</h2>
     <form method="POST" class="post-form" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
@@ -48,7 +48,6 @@
         <img src="{{ uploaded_file_url }}">
         <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
     {% endif %}
-    
 </div>
 
 <div class="typography-line" style="padding-left:0; display:None;" id="loading">
