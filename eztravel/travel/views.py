@@ -3,6 +3,8 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import View, TemplateView
 from .models import Post
+from .forms import UploadImageForm
+from django.core.files.storage import FileSystemStorage
 
 # Create your views here.
 class mainview(LoginRequiredMixin, View):
@@ -48,6 +50,16 @@ def loading(request):
 class PostTemplateView(TemplateView):
     template_name = 'travel/loading.html'
 
-# def post_json(request):
-#     data = list(Post.objects.values())
-#     return JsonResponse(data, safe=False)
+def uimage(request):
+    if request.method == 'POST':
+        form = UploadImageForm(request.POST, request.FILES)  # 이미지르 업로드할때 쓰는 form
+        if form.is_valid():
+            myfile = request.FILES['image']
+            # 
+            fs = FileSystemStorage()  # 이미지 파일을 저장
+            filename = fs.save(myfile.name, myfile)
+            uploaded_file_url = fs.url(filename)
+            return render(request, 'travel/uimage.html', {'form': form, 'uploaded_file_url' : uploaded_file_url})
+    else:
+        form = UploadImageForm()
+        return render(request, 'travel/uimage.html', {'form': form})

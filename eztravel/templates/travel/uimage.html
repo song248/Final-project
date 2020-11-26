@@ -1,0 +1,60 @@
+{% extends 'travel/index.html' %}
+
+{% block content %}
+{% load static %}
+
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script type="text/javascript"></script>
+<script>
+    function uploadFile(){
+        $.ajax({
+            cache : false,
+            type: "GET",
+            url: "uimage/",
+            success:function(result){
+            },
+            beforeSend:function(){
+                $("#loading").show();
+            },
+            complete:function(){
+                $("#loading").hide();
+                $("#uploading").hide();
+                $("#showing").show();
+                $("#movetonext").show();
+            },
+            error : function(status) {
+                alert(status);
+            }
+        });
+    }
+</script>
+
+<div id="uploading">
+    <h1>이미지 업로드</h1>
+    <form method="POST" class="post-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-fill btn-primary" value="upload" onclick="uploadFile();">
+        업로드하기</button>
+    </form>
+</div>
+
+<div id="showing">
+    <br>
+    {% if uploaded_file_url %}
+        <img src="{{ uploaded_file_url }}">
+        <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+    {% endif %}
+    
+</div>
+
+<div class="typography-line" style="padding-left:0; display:None;" id="loading">
+    <img src="{% static 'img/loading_3.gif' %}">
+</div>
+
+<div id="movetonext" style="display:None;">
+    <p class="lead">
+    <a href="#" class="btn btn-lg btn-secondary">지도에서 확인하기</a></p>
+</div>
+
+{% endblock%}

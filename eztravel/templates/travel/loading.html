@@ -16,17 +16,18 @@
             
             success:function(result){
                 $("#spinner-box").hide();
-                
                 $("#analysis_btn").hide();
+                $("#suck").show();
             },
 
             beforeSend:function(){
                 $("#analysis_btn").show();
+                $("#suck").hide();
             },
 
             complete:function(){
                 $("#loading").show();
-                $("#suck").show();
+                $("#suck").hide();
             },
 
             error : function(jqXHR, textStatus, errorThrown ){
@@ -52,6 +53,6 @@
 </div>
 
 <div id="suck" class="text-center mt-3">
-여기가 나와요
+    <span>여기가 나와요</span>
 </div>
 {% endblock%}
