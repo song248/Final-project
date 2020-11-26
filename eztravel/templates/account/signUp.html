@@ -4,28 +4,28 @@
 <div class="login d-flex align-items-center py-5">
     <div class="col-md-9 col-lg-8 mx-auto" id="width-modify">
         <h3 class="login-heading mb-4">회원가입</h3>
-
+        
         <form method="POST" class="post-form" action="{% url 'login:signup' %}">
             {% csrf_token %}
+            <center>
+                <div class="form-label-group">
+                    <input name="username" type="text" id="usr" class="form-control" placeholder="이메일"
+                        value="{{ form.username.value|default_if_none:'' }}" required autofocus style="width:350px">
+                    <label for="usr"></label>
+                </div>
 
-            <div class="form-label-group">
-                <input name="username" type="text" id="usr" class="form-control" placeholder="이메일"
-                    value="{{ form.username.value|default_if_none:'' }}" required autofocus>
-                <label for="usr"></label>
-            </div>
+                <div class="form-label-group">
+                    <input name="password1" type="password" id="inputPassword1" class="form-control" placeholder="비밀번호"
+                        value="{{ form.password.value|default_if_none:'' }}" required style="width:350px">
+                    <label for="inputPassword1"></label>
+                </div>
 
-            <div class="form-label-group">
-                <input name="password1" type="password" id="inputPassword1" class="form-control" placeholder="비밀번호"
-                    value="{{ form.password.value|default_if_none:'' }}" required>
-                <label for="inputPassword1"></label>
-            </div>
-
-            <div class="form-label-group">
-                <input name="password2" type="password" id="inputPassword2" class="form-control" placeholder="비밀번호 확인"
-                    value="{{ form.password.value|default_if_none:'' }}" required>
-                <label for="inputPassword2"></label>
-            </div>
-
+                <div class="form-label-group">
+                    <input name="password2" type="password" id="inputPassword2" class="form-control" placeholder="비밀번호 확인"
+                        value="{{ form.password.value|default_if_none:'' }}" required style="width:350px">
+                    <label for="inputPassword2"></label>
+                </div>
+            </center>
 
             {% if form.errors %}
                 {% for field in form %}
@@ -45,9 +45,10 @@
                 {% endfor %}
             {% endif %}
             <br>
+            <center>
             <button class="btn btn-lg btn-info btn-block btn-login text-uppercase font-weight-bold mb-2"
-                type="submit">가입하기</button>
-            <!-- <div class="text-center"> Forgot password? </div> -->
+                type="submit" style="width: 150px">가입하기</button>
+            </center>
         </form>
         
     </div>

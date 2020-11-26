@@ -55,13 +55,12 @@
 </head>
 
 <body class="text-center">
-    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-        <header class="masthead mb-auto">
-            <div class="inner">
-                <h3 class="masthead-brand">🌏EZtravel</h3>
-                <a href="{% url 'index' %}" class="masthead-brand btn">🌏EZtravel</a>
+    <div class="d-flex w-100 h-100 p-3 mx-auto flex-column">
+        <header class="masthead mb-auto"  >
+        <center>
+            <div class="inner" style="width: 900px">
+                <h3 class="masthead-brand"><a href="{% url 'index' %}">🌏EZtravel</a></h3>
                 <nav class="nav nav-masthead justify-content-center">
-                    <a class="nav-link" href="{% url 'index' %}">홈</a>
                     <a class="nav-link" href="{% url 'know' %}">공지사항</a>
                     <a class="nav-link" href="{% url 'howto' %}">이용안내</a>
                     {% if request.user.is_authenticated %}
@@ -72,6 +71,7 @@
                     {% endif %}
                 </nav>
             </div>
+        </center>
         </header>
     
         {% block content %}
@@ -82,7 +82,6 @@
                 사진을 업로드하고 해당 장소를 확인해보세요!<br><br></p>
             <p class="lead">
                 <a href="{% url 'uimage' %}" class="btn btn-lg btn-secondary">확인하러 가기</a>
-                <a href="{% url 'loading' %}" class="btn btn-lg btn-secondary">로딩</a>
             </p>
         </main>
         {% endblock %}

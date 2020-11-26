@@ -1,11 +1,29 @@
 {% extends 'travel/index.html' %}
 
 {% block content %}
-    <div class="container">
-        <ul class="list">
-            <h3><a href="">{{ post.title }}</a></h3>
-            <div class="content">{{ post.content|linebreaksbr }}</div>
-        </ul>
-    </div>
+<center>
+<div class="container">
+    <table border='2' cellspacing="0" cellpadding='2' style="border-collapse:collapse; border:1px black solid">
+        <tr>
+            <td style="width:100px; color:black;" align="center" bgcolor="#888888">작성자</td>
+            <td style="width:200px; height:50px; color:black;" bgcolor="white">&nbsp&nbsp&nbsp{{ post.author }}</td>
+            <td style="width:100px; color:black;" align="center" bgcolor="#888888">작성일</td>
+            <td style="width:300px; height:50px; color:black;" bgcolor="white">&nbsp&nbsp&nbsp{{ post.published_date }}</td>
+        </tr>
+        <tr>
+            <td style="width:100px; height:60px; color:black;" align="center" bgcolor="#888888">제목</td>
+            <td colspan="3" style="color:black;" bgcolor="white"><h3>&nbsp{{ post.title }}</h3></td>
+        </tr>
+        <tr>
+            <td style="color:black;" bgcolor="#888888" align="center">내용</td>
+            <td colspan="3" style="color:black;" bgcolor="white"><br>
+            <div class="content" style="margin-left: 10px;">{{ post.content|linebreaksbr }}<br>&nbsp</div></td>
+        </tr>
+    </table>
+</div>
+<div id="batong"><br>
+    <a href="{% url 'know' %}" class="btn btn-secondary">목록으로</a>
+</div>
+</center>
 {% endblock %}
 

@@ -7,17 +7,19 @@
 
         <form method="POST" class="post-form" action="{% url 'account:login' %}">
             {% csrf_token %}
-            <div class="form-label-group">
-                <input name="username" type="text" id="usr" class="form-control" placeholder="이메일"
-                value="{{ form.username.value|default_if_none:'' }}" required autofocus>
-                <label for="usr"></label>
-            </div>
+            <center>
+                <div class="form-label-group">
+                    <input name="username" type="text" id="usr" class="form-control" placeholder="이메일"
+                    value="{{ form.username.value|default_if_none:'' }}" required autofocus style="width:350px">
+                    <label for="usr"></label>
+                </div>
 
-            <div class="form-label-group">
-                <input name="password" type="password" id="inputPassword" class="form-control"
-                placeholder="비밀번호" value="{{ form.password.value|default_if_none:'' }}" required>
-                <label for="inputPassword"></label>
-            </div>
+                <div class="form-label-group">
+                    <input name="password" type="password" id="inputPassword" class="form-control"
+                    placeholder="비밀번호" value="{{ form.password.value|default_if_none:'' }}" required style="width:350px">
+                    <label for="inputPassword"></label>
+                </div>
+            </center>
 
             {% if form.errors %}
                 {% for field in form %}
@@ -36,14 +38,21 @@
                     </div>
                 {% endfor %}
             {% endif %}
-            <button class="btn btn-lg btn-primary btn-block btn-login font-weight-bold mb-2" type="submit">로그인</button>
+
+            <center>
+                <button class="btn btn-lg btn-primary btn-block btn-login font-weight-bold mb-2" 
+                type="submit" style="width:150px">로그인</button>
+            </center>
             <!-- <div class="text-center"> Forgot password? </div> -->
-        </form><br>
+        </form>
         
-        <div class="reg-btn">
-            <a href="{% url 'login:signup' %}">
-            <button class="btn btn-lg btn-info btn-block btn-login font-weight-bold mb-2" type="link">회원가입</button></a>
-        </div>
+        <center><br>
+            <div class="reg-btn">
+                <a href="{% url 'login:signup' %}">
+                <button class="btn btn-lg btn-info btn-block btn-login font-weight-bold mb-2" 
+                type="link" style="width:150px">회원가입</button></a>
+            </div>
+        </center>
     </div>
 </div>
 {% endblock%}
