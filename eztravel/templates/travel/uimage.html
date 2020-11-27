@@ -46,7 +46,8 @@
     <br>
     {% if uploaded_file_url %}
         <img src="{{ uploaded_file_url }}">
-        <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+        <!--<p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>-->
+        <p>사진 속 장소 : {{ result }}</p>
     {% endif %}
 </div>
 
@@ -54,7 +55,7 @@
     <img src="{% static 'img/loading_3.gif' %}">
 </div>
 
-<div id="movetonext">
+<div id="movetonext" style="display:None;">
     <a href="{% url 'upload' %}" class="btn btn-lg btn-secondary">지도에서 확인하기</a>
 </div>
 

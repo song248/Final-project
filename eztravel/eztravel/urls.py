@@ -41,8 +41,6 @@ urlpatterns = [
 
     url(r'^uimage/$', views.uimage, name='uimage'),
 
-    
-    path('loading/', views.PostTemplateView.as_view(), name='loading'),
     # path('post_json/', views.post_json, name='json_view'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
 # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
