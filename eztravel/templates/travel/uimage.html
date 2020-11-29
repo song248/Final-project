@@ -3,56 +3,67 @@
 {% block content %}
 {% load static %}
 
-<script src="{% static 'js/jquery.min.js' %}"></script>
-<script type="text/javascript"></script>
-<script>
-    function uploadFile(){
+<form id="myForm" method="POST" class="post-form" enctype="multipart/form-data">
+    <h2>이미지 업로드</h2>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button id="submit" type="submit" class="btn btn-fill btn-primary">업로드하기</button>
+</form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    var place;
+    var im_file;
+    $("#submit").click(function(e) {
+        e.preventDefault();
+        var form = $("#myForm")[0]; //data 가져오기 어떻게??
+        var formData = new FormData(form);
         $.ajax({
             cache : false,
-            type: "GET",
+            type: "POST",
             url: "uimage/",
-            success:function(result){
-                $("#uploading").hide();
-                $("#movetonext").show();
+            processData: false,
+            contentType: false,
+            data : formData,
+            success:function(data){
+                console.log('here')
+                place = data["result"]
+                console.log(place)
+                im_file = data["file_url"]
+                console.log(im_file)
+                var show_img = "<img src='"+im_file+"'width=600px, height=400px>"
+                $("#myForm").hide();
+                $('#predict').html(place);
+                $('#file_place').html(show_img);
             },
             beforeSend:function(){
-                $("#uploading").hide();
+                console.log('beforesend')
                 $("#loading").show();
+                $("#myForm").hide();
             },
             complete:function(){
-                $("#uploading").hide();
-                $("#loading").hide();
+                console.log(place)
+                console.log('complete')
                 $("#showing").show();
                 $("#movetonext").show();
+                $("#loading").hide();
             },
-            error : function(status) {
-                alert(status);
-            }
         });
-    }
+        return place
+    });
 </script>
 
-<div id="uploading">
-    <h2>이미지 업로드</h2>
-    <form method="POST" class="post-form" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-fill btn-primary" value="upload" onclick="uploadFile();">
-        업로드하기</button>
-    </form>
-</div>
-
-<div id="showing">
-    <br>
-    {% if uploaded_file_url %}
-        <img src="{{ uploaded_file_url }}">
-        <!--<p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>-->
-        <p>사진 속 장소 : {{ result }}</p>
-    {% endif %}
-</div>
-
 <div class="typography-line" style="padding-left:0; display:None;" id="loading">
+    <h2>위치 확인중</h2><br>
     <img src="{% static 'img/loading_3.gif' %}">
+</div>
+
+<div id="showing" style="display:None;">
+    <div id="file_place"></div><br>
+    <p><h3><span>사진 속 장소는&nbsp</span>
+        <span id="predict">
+        </span>
+        <span>(으)로 예측됩니다.</span></h3></p>
 </div>
 
 <div id="movetonext" style="display:None;">

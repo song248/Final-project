@@ -5,6 +5,7 @@ from django.views.generic import View, TemplateView
 from .models import Post
 from .forms import UploadImageForm
 from django.core.files.storage import FileSystemStorage
+from travel import Using_Saved_Model
 
 # Create your views here.
 class mainview(LoginRequiredMixin, View):
@@ -55,11 +56,24 @@ def uimage(request):
         form = UploadImageForm(request.POST, request.FILES)  # 이미지르 업로드할때 쓰는 form
         if form.is_valid():
             myfile = request.FILES['image']
-            # 
             fs = FileSystemStorage()  # 이미지 파일을 저장
             filename = fs.save(myfile.name, myfile)
-            uploaded_file_url = fs.url(filename)
-            return render(request, 'travel/uimage.html', {'form': form, 'uploaded_file_url' : uploaded_file_url})
+            uploaded_file_url = "{}".format(myfile)
+            img_path = 'C:/Users/songtg/Desktop/Final_project/eztravel/media/' + uploaded_file_url
+            print(uploaded_file_url)
+            result = Using_Saved_Model.execute_model(img_path)
+            print(result)
+            file_url=fs.url(filename)
+            context = {
+                'result' : result,
+                'uploaded_file_url' : img_path
+            }
+            print(type(context))
+            print(context['result'])
+            return JsonResponse({"result":result, "file_url":file_url})
+            #return render(request, 'travel/uimage.html', context)
     else:
         form = UploadImageForm()
+        print(form, "----------------------------------------------------------------------")
         return render(request, 'travel/uimage.html', {'form': form})
+
