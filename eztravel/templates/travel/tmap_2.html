@@ -1,0 +1,405 @@
+{% extends 'travel/index.html' %}
+
+{% block content %}
+{% load static %}
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>simpleMap</title>
+<script
+	src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx0bc558171c774e4ba754afa0476b3077"></script>
+<script	src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script type="text/javascript">
+	// 맵 소환!!
+	var map;
+
+	// 명소의 정보
+	var x = JSON.parse('{{ x }}')[0];
+	var y = JSON.parse('{{ y }}')[0];
+	var name = '{{ name }}';
+	console.log('이번에 선정된 명소는 "'+name+'" 입니다.')
+
+	// 맛집의 정보
+	var x_rest = JSON.parse('{{ x_rest }}');
+	var y_rest = JSON.parse('{{ y_rest }}');
+	var n_rest = '{{ n_rest }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').split(',') // string -> list
+	var new_n_rest=[];
+	for (var i=0;i<n_rest.length;i++) { new_n_rest.push(n_rest[i].trim()) } // 글자 앞 좌우 공백을 제거
+	n_rest = new_n_rest;
+
+	// 포토존의 정보
+	var x_photo = JSON.parse('{{ x_photo }}');
+	var y_photo = JSON.parse('{{ y_photo }}');
+	var n_photo = '{{ n_photo }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').split(',')
+	var new_n_photo=[];
+	for (var i=0;i<n_photo.length;i++) { new_n_photo.push(n_photo[i].trim()) }
+	n_photo = new_n_photo;
+
+	// 좌표사전
+	var location_dict = {};
+	location_dict[name] = [x, y]
+	get_location(n_rest, x_rest, y_rest)
+	get_location(n_photo, x_photo, y_photo)
+	console.log(location_dict)
+
+	// 마커들을 저장할 배열입니다.
+	var markers = [];
+
+	// 체크박스 클릭
+	var r_checkbox_list=[];
+	var p_checkbox_list=[];
+	var checkbox_list = [];
+
+	// 체크박스에서 선택된 장소들과 명소 ( 즉, 선정된 모든 경로 )
+	var points = [];
+
+	// 선을 그리기 위해
+	var resultdrawArr = []; 
+
+	// 페이지가 로딩이 된 후 호출하는 함수입니다.
+	function initTmap(){
+		show_location_info(); // 우측의 체크리스트
+		
+		// map 생성
+		map = new Tmapv2.Map("map_div", {
+            center: new Tmapv2.LatLng(36.4, 127.9), // 지도 초기 좌표
+            zoom: 8, // 지도 확대
+            zoomControl:true,
+            scrollwheel:true,
+            width: "900px", // map의 width 설정
+            height: "800px" // map의 height 설정
+         });
+		addMarker(); // 명소 마커 찍는 함수
+		moveCenter(); // 좌표를 중심으로 지도 이동
+
+		// 버튼 클릭시 활성화
+		$('#btn_select').click(function() {
+			checkbox_list = check_to_name() // checklist에서 나온 것을 저장
+			// console.log('checkbox_list', checkbox_list)
+
+			addCheckMarkers(checkbox_list);
+
+			points = [name, ...checkbox_list]
+			// console.log(points)
+
+			// 생성할 수 있는 모든 경로의 순열
+			var point_route = getPermutations(points, points.length)
+			console.log('이어질 수 있는 모든 경우 >> ', point_route)
+
+			var p_to_p = {}; // 장소간의 거리 저장
+
+			// 모든 장소들간의 거리를 계산
+			for (var i=0;i<points.length-1;i++) {
+				for (var j=i+1;j<points.length;j++) {
+					console.log(points[i], '<-->', points[j])
+					console.log('start:', String(location_dict[points[i]][0]), String(location_dict[points[i]][1]))
+					console.log('end:', String(location_dict[points[j]][0]), String(location_dict[points[j]][1]))
+
+					// 장소와 장소간의 거리 계산
+					$.ajax({
+						type : "POST",
+						url : "https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result",
+						async : false, // ajax 를 돌릴 떄 순차적으로 돌 수 있도록 하기 위해서
+						data : {
+							"appKey" : "l7xx0bc558171c774e4ba754afa0476b3077",
+							"startX" : String(location_dict[points[i]][0]),
+							"startY" : String(location_dict[points[i]][1]),
+							"endX" : String(location_dict[points[j]][0]),
+							"endY" : String(location_dict[points[j]][1]),
+							"reqCoordType" : "WGS84GEO", // 요청 좌표계 옵션
+							"resCoordType" : "EPSG3857" // 응답 좌표계 옵션
+						},
+						success:function(response){ //API가 제대로 작동할 경우 실행될 코드
+							var resultData = response.features;
+							var distance = (resultData[0].properties.totalDistance / 1000) // toFixes(1) : 소수 첫 째 자리까지만
+
+							p_to_p[points[i] +','+ points[j]] = Number(distance); // 장소간의 거리를 사전에 저장
+							p_to_p[points[j] +','+ points[i]] = Number(distance);
+							// var tDistance = "총 거리 : "+ (resultData[0].properties.totalDistance / 1000).toFixed(1) + "km,";
+							// $("#result").text(tDistance);
+							console.log(points[i], points[j])
+							console.log(distance)
+						}
+					}); // ------ ajax로 거리 받아오기
+					// 요청 시간이 너무 빨라 딜레이를 넣어준다.
+					sleep(500); // 1초
+				}
+			} // --------- 거리를 구하기 위해 반복
+
+
+			console.log('거리 사전 complete >> ', p_to_p) // 거리 사전 완성 확인
+
+			var point_route_list = []; // 경로당 거리
+
+			for (var i=0; i<point_route.length;i++) {
+				var len_point_routes = 0;
+
+				for (var j=0; j<point_route[i].length-1;j++) {
+					// console.log(point_route[i][j], point_route[i][j+1])
+					var atob = point_route[i][j] +','+ point_route[i][j+1]
+					var len_point_route = p_to_p[atob] // 사전에서 거리 검색
+					// console.log('사전[', atob ,'] =', len_point_route)
+					len_point_routes += len_point_route
+				}
+				point_route_list.push([point_route[i], len_point_routes]) // 경로순서이름, 거리합
+			}
+			// console.log('최단 경로 리스트 >> ', point_route_list)
+			// shortest_route = Math.min.apply(null, point_route_list); // 최솟값 찾기
+
+			// 최단 거리 찾기 
+			var shortest_route=['', 1000000000000000000]; // 저장하기 용
+			for (var i in point_route_list) {
+				if (point_route_list[i][1] < shortest_route[1]) {
+					console.log('point_route_list[i]', point_route_list[i])
+					shortest_route = point_route_list[i]
+				}
+			}
+
+			console.log('최단 경로 경로 >>', shortest_route[0])
+			console.log('최단 경로 거리 >>', shortest_route[1])
+			$("#result").text(shortest_route[0][0]+'->'+shortest_route[0][1]+'->'+shortest_route[0][2]+'->'+shortest_route[0][3]+'->'+shortest_route[0][4]);
+			$("#result2").text(String(shortest_route[1].toFixed(3))+'km');
+
+			// 선 그려주기
+			for (var i=0;i<shortest_route[0].length-1;i++) {
+				var drawInfoArr = [];
+				$.ajax({
+					type : "POST",
+					url : "https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result",
+					async : false,
+					data : {
+						"appKey" : "l7xx0bc558171c774e4ba754afa0476b3077",
+						"startX" : String(location_dict[shortest_route[0][i]][0]),
+						"startY" : String(location_dict[shortest_route[0][i]][1]),
+						"endX" : String(location_dict[shortest_route[0][i+1]][0]),
+						"endY" : String(location_dict[shortest_route[0][i+1]][1]),
+						"reqCoordType" : "WGS84GEO",
+						"resCoordType" : "EPSG3857",
+					},
+					success : function(response) {
+						var resultData = response.features;
+
+						for (var rd in resultData) { 
+							var geometry = resultData[rd].geometry;
+							
+							if (geometry.type == "LineString") {
+								for ( var j in geometry.coordinates) {
+									// 경로들의 결과값들을 포인트 객체로 변환 
+									var latlng = new Tmapv2.Point(
+											geometry.coordinates[j][0],
+											geometry.coordinates[j][1]);
+									// 포인트 객체를 받아 좌표값으로 변환
+									var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(
+											latlng);
+									// 포인트객체의 정보로 좌표값 변환 객체로 저장
+									var convertChange = new Tmapv2.LatLng(
+											convertPoint._lat,
+											convertPoint._lng);
+									// 배열에 담기
+									drawInfoArr.push(convertChange);
+								}
+								drawLine(drawInfoArr, i);
+							}
+						}
+					}
+				}); // ---------- 여기 까지가 ajax
+				sleep(500);
+			}
+		}); // ------ 여기까지가 버튼
+	}
+
+	// 장소들에 대한 좌표 사전 만들기
+	function get_location(n, x, y) {
+		for (var i=0;i<n.length;i++) {
+			location_dict[n[i]] = [x[i], y[i]]
+		}
+	}
+	// 우측 체크리스트 텍스트 띄우기
+	function show_location_info() {
+		$("#first_restaurant").text(n_rest[0]);
+		$("#second_restaurant").text(n_rest[1]);
+		$("#third_restaurant").text(n_rest[2]);
+		$("#forth_restaurant").text(n_rest[3]);
+
+		$("#first_photozone").text(n_photo[0]);
+		$("#second_photozone").text(n_photo[1]);
+		$("#third_photozone").text(n_photo[2]);
+	}
+
+	// 명소 위치에 마크 찍어주기
+	function addMarker() {
+		var marker = new Tmapv2.Marker({
+			position: new Tmapv2.LatLng(y, x), //Marker의 중심좌표 설정.
+			icon: "http://tmapapis.sktelecom.com/upload/tmap/marker/pin_r_m_m.png", // icon 아이콘 형식  "http://tmapapis.sktelecom.com/upload/tmap/marker/pin_b_m_" + i + ".png"
+			iconSize: new Tmapv2.Size(30, 45), // icon 사이즈 조절
+			label: name, // Marker의 라벨.
+			fontColor: 'black'
+		});
+		marker.setMap(map); // Marker가 표시될 Map 설정.
+	}
+
+	// 모든 마커를 제거하는 함수
+	function removeMarkers() {
+		for (var i = 0; i < markers.length; i++) {
+			markers[i].setMap(null);
+		}
+		markers = [];
+	}
+
+	// 명소 마커를 기준으로 중심점 이동
+	function moveCenter() {
+		var newCenter = new Tmapv2.LatLng(y, x)
+		map.setCenter(newCenter);
+		map.setZoom(11); // 확대 크기
+	}
+
+	// 맛집의 좌표를 찍어줌
+	function addCheckMarkers(checkbox_list) {
+		for (var i=0;i<checkbox_list.length;i++) { // 몇 개를 뽑아낼 것인지
+			// Marker 객체 생성.
+			var marker = new Tmapv2.Marker({
+				position: new Tmapv2.LatLng(location_dict[checkbox_list[i]][1], location_dict[checkbox_list[i]][0]), //Marker의 중심좌표 설정. y, x
+				icon: "http://tmapapis.sktelecom.com/upload/tmap/marker/pin_b_m_"+ i +".png", // icon 아이콘 형식
+				iconSize: new Tmapv2.Size(30, 45), // icon 사이즈 조절
+				label: checkbox_list[i], // Marker의 라벨.
+				fontColor: 'black'
+			});
+			marker.setMap(map); // Marker가 표시될 Map 설정.
+		}
+	}
+
+	// 순열 함수
+	const getPermutations= function (arr, selectNumber) {
+		const results = [];
+		if (selectNumber === 1) return arr.map((value) => [value]); // 1개씩 택할 때, 바로 모든 배열의 원소 return
+
+		arr.forEach((fixed, index, origin) => {
+			const rest = [...origin.slice(0, index), ...origin.slice(index+1)] // 해당하는 fixed를 제외한 나머지 배열 
+			const permutations = getPermutations(rest, selectNumber - 1); // 나머지에 대해 순열을 구한다.
+			const attached = permutations.map((permutation) => [fixed, ...permutation]); // 돌아온 순열에 대해 떼 놓은(fixed) 값 붙이기
+			results.push(...attached); // 배열 spread syntax 로 모두다 push
+		});
+		return results; // 결과 담긴 results return
+	};
+
+	// 시간이여 멈춰라!!
+	function sleep(ms){
+		ts1 = new Date().getTime() + ms;
+		do ts2 = new Date().getTime(); while (ts2<ts1);
+	}
+
+	//라인그리기
+	function drawLine(arrPoint, num) {
+		var polyline_;
+		var lineColor="";
+	
+		if (num % 7 == 0) { lineColor='#ff0000' }
+		else if (num % 7 == 1) { lineColor='#f06200' }
+		else if (num % 7 == 2) { lineColor='#f0f300' }
+		else if (num % 7 == 3) { lineColor='#00ff00' }
+		else if (num % 7 == 4) { lineColor='#0000ff' }
+		else if (num % 7 == 5) { lineColor='#000074' }
+		else if (num % 7 == 6) { lineColor='#970cda' }
+		
+		//라인그리기[S]
+		polyline_ = new Tmapv2.Polyline({
+			path : arrPoint,
+			strokeColor : lineColor,
+			strokeWeight : 6,
+			map : map
+		});
+		resultdrawArr.push(polyline_);
+	}
+	
+	// 체크박스 반영하기
+	function getValue(){
+        $("input[name=restau]:checked").each(function() { 
+            var restau = $(this).val();
+			r_checkbox_list.push(restau)
+    	});
+		$("input[name=photo]:checked").each(function() { 
+            var photozo = $(this).val();
+			p_checkbox_list.push(photozo)
+    	});
+	}
+
+	function check_to_name() {
+		// 맛집의 좌표를 찍어주기 위해
+		restaurant_num = [];
+			for (var i=0;i<r_checkbox_list.length;i++) {
+				if (r_checkbox_list[i] == 'r_first') {
+					restaurant_num.push(n_rest[0])
+				} else if (r_checkbox_list[i] == 'r_second') {
+					restaurant_num.push(n_rest[1])
+				} else if (r_checkbox_list[i] == 'r_third') {
+					restaurant_num.push(n_rest[2])
+				} else if (r_checkbox_list[i] == 'r_forth') {
+					restaurant_num.push(n_rest[3])
+				} 
+			}
+
+			// 포토존 좌표를 찍어주기 위해
+			photozone_num = [];
+			for (var i=0;i<p_checkbox_list.length;i++) {
+				if (p_checkbox_list[i] == 'p_first') {
+					photozone_num.push(n_photo[0])
+				} else if (p_checkbox_list[i] == 'p_second') {
+					photozone_num.push(n_photo[1])
+				} else if (p_checkbox_list[i] == 'p_third') {
+					photozone_num.push(n_photo[2])
+				}
+			}
+
+			return [...restaurant_num, ...photozone_num]
+	}
+</script>
+</head>
+
+<body onload="initTmap()"> <!--함수 호출-->
+	<div id="first_table">
+		<center><table border='0'>
+		   <tr><td rowspan="4">
+				 <div id="map_div" style="color:black;"></div></td>
+					<td style="width:20px;"></td>
+					<td style="width:300px; height:250px;">
+				 <p><h3>&nbsp맛집</h3></p>
+				 <label>
+					<span><input type="checkbox" name="restau" value="r_first">&nbsp</span><span<p id="first_restaurant">1번 맛집</p></span>
+				 </label><br>
+				 <label>
+					<span><input type="checkbox" name="restau" value="r_second">&nbsp</span><span<p id="second_restaurant">2번 맛집</p></span>
+				 </label><br>
+				 <label>
+					<span><input type="checkbox" name="restau" value="r_third">&nbsp</span><span<p id="third_restaurant">3번 맛집</p></span>
+				 </label><br>
+				 <label>
+					<span><input type="checkbox" name="restau" value="r_forth">&nbsp</span><span<p id="forth_restaurant">4번 맛집</p></span>
+				 </label>
+			  </td></tr>
+		   <tr>
+			  <td></td>
+			  <td style="height:250px;">
+				 <p><h3>&nbsp포토스팟</h3></p>
+				 <label>
+					<span><input type="checkbox" name="photo" value="p_first">&nbsp</span><span<p id="first_photozone">1번 스팟</p></span>
+				 </label><br>
+				 <label>
+					<span><input type="checkbox" name="photo" value="p_second">&nbsp</span><span<p id="second_photozone">2번 스팟</p></span>
+				 </label><br>
+				 <label>
+					<span><input type="checkbox" name="photo" value="p_third">&nbsp</span><span<p id="third_photozone">3번 스팟</p></span>
+				 </label>
+			  </td></tr>
+		   <tr>
+			  <td></td>
+			  <td style="height:100px;"><center>
+			  <button id="btn_select" style="width:300px;height:70px; font-weight:bold;" class="btn btn-lg btn-secondary" onclick="getValue()">경로생성</button>
+		   </center></td></tr>
+		   <tr>
+			  <td></td>
+			  <td><center><a href="#">주변정보</a></center></td>
+		   </tr>
+		</table></center>
+	 </div>
+</body>
+
+{% endblock %}

@@ -6,6 +6,8 @@ from .models import Post
 from .forms import UploadImageForm
 from django.core.files.storage import FileSystemStorage
 from travel import Using_Saved_Model
+import pandas as pd
+import random, json
 
 # Create your views here.
 class mainview(LoginRequiredMixin, View):
@@ -42,12 +44,6 @@ def howto(request):
 def login(request):
     return render(request, 'travel/login.html')
 
-def upload(request):
-    return render(request, 'travel/map.html')
-
-def loading(request):
-    return render(request, 'travel/loading.html')
-
 class PostTemplateView(TemplateView):
     template_name = 'travel/loading.html'
 
@@ -77,3 +73,96 @@ def uimage(request):
         print(form, "----------------------------------------------------------------------")
         return render(request, 'travel/uimage.html', {'form': form})
 
+def test(request):
+    if request.method == 'POST':
+        text=request.POST['result_data']
+    print("status: ", text)
+    context = {
+        'place' : text,
+    }
+    return render(request, 'travel/test.html', context)
+
+def getmap(request):
+    print('upload page 시작')
+    if request.method == 'POST':
+        text=request.POST['result_data']
+    print("status: ", text)
+
+    # 명소
+    attraction_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_attraction.csv')
+    # 맛집
+    restaurant_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_restaurant.csv')
+    # 포토존
+    photozone_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_photozone.csv')
+
+
+    # 명소의 좌표
+    attraction = attraction_list[attraction_list['name'] == map_name(text)]
+    location_x = attraction['x'].tolist()
+    location_y = attraction['y'].tolist()
+    attr = attraction['name'].tolist()[0]
+    print('attr', attr)
+    # 명소와 같은 지역을 찾는 것
+    region = attraction['area'].tolist()[0]
+    print('region', region)
+
+    # 맵에 찍힌 명소와 주소 상 같은 지역인 맛집만을 알려주기 위해
+    rest_info = restaurant_list[restaurant_list['area'] == region]
+    rest_info_x = rest_info['x'].tolist()
+    rest_info_y = rest_info['y'].tolist()
+    rest_info_name = rest_info['name'].tolist()
+    print(len(rest_info_x), len(rest_info_y), len(rest_info_name))
+
+    # 위와 같이 맵에 찍힌 명소와 같은 지경의 포토존을 추천해주기 위해
+    photo_info = photozone_list[photozone_list['area'] == region]
+    photo_info_x = photo_info['x'].tolist()
+    photo_info_y = photo_info['y'].tolist()
+    photo_info_name = photo_info['name'].tolist()
+    print(len(rest_info_x), len(rest_info_y), len(rest_info_name))
+
+    context = {
+        'y' : location_y,
+        'x' : location_x,
+        'name' : attr,
+        'x_rest' : rest_info_x[:4],
+        'y_rest' : rest_info_y[:4],
+        'n_rest' : rest_info_name[:4],
+        'x_photo' : photo_info_x,
+        'y_photo' : photo_info_y,
+        'n_photo' : photo_info_name,
+    }
+
+    return render(request, 'travel/tmap.html', context)
+
+def test(request):
+    return render(request, 'travel/test.html')
+
+result_dict = {
+    'Skybay': '스카이베이',
+    'SunCruise': '썬크루즈리조트엔호텔',
+    ' Gwangandaegyo': '광안대교',
+    '5.18Park': '5.18 기념공원',
+    'GwanghwamunSquare': '광화문광장',
+    'NamsanTower': '남산서울타워',
+    'DaejeonExpo': '엑스포과학공원',
+    'D_Ark': '디아크문화관',
+    'LotteWorldTower': '롯데월드타워',
+    'MetasequoiaRoad': '하늘공원 메타세콰이어길',
+    'Seokgulam': '석굴암',
+    'Anapji': '안압지',
+    'Yongdu.MtTower': '부산타워',
+    'UlsanPostbox': '소망우체통',
+    'UlsanBigwheel': '롯데꿈동산 공중관람차',
+    'UlsanBridge': '울산대교',
+    'Waterpoly': '워터폴리',
+    'ChinaTown': '인천차이나타운',
+    'Tryball': '트라이보울',
+    'JagalchiMarket': '자갈치시장',
+    'IndependenceHall': '독립기념관',
+    'Cheomseongdae': '첨성대',
+    'HomiPoint': '호미곶'
+}
+
+def map_name(model_result):
+    map_name = result_dict[model_result]
+    return map_name

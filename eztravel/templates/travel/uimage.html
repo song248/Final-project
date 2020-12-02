@@ -26,7 +26,6 @@
             contentType: false,
             data : formData,
             success:function(data){
-                console.log('here')
                 place = data["result"]
                 console.log(place)
                 im_file = data["file_url"]
@@ -35,6 +34,7 @@
                 $("#myForm").hide();
                 $('#predict').html(place);
                 $('#file_place').html(show_img);
+                $('#js_data_input').val(place)
             },
             beforeSend:function(){
                 console.log('beforesend')
@@ -42,7 +42,6 @@
                 $("#myForm").hide();
             },
             complete:function(){
-                console.log(place)
                 console.log('complete')
                 $("#showing").show();
                 $("#movetonext").show();
@@ -53,21 +52,31 @@
     });
 </script>
 
+<script>
+    $('#js_data_input').val(place)
+</script>
+
 <div class="typography-line" style="padding-left:0; display:None;" id="loading">
     <h2>위치 확인중</h2><br>
     <img src="{% static 'img/loading_3.gif' %}">
 </div>
 
 <div id="showing" style="display:None;">
-    <div id="file_place"></div><br>
+    <div id="file_place"></div><br> 
     <p><h3><span>사진 속 장소는&nbsp</span>
         <span id="predict">
         </span>
         <span>(으)로 예측됩니다.</span></h3></p>
 </div>
 
+
+
 <div id="movetonext" style="display:None;">
-    <a href="{% url 'upload' %}" class="btn btn-lg btn-secondary">지도에서 확인하기</a>
+    <form method="post" action="{% url 'getmap'%}" id="create">
+        {% csrf_token %}
+        <input type="hidden" name="result_data" value="" id="js_data_input">
+        <input type="submit" name="submit" class="btn btn-lg btn-secondary" value="지도에서 확인하기">
+    </form>
 </div>
 
 {% endblock%}

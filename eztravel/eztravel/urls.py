@@ -35,10 +35,12 @@ urlpatterns = [
     #path('login/', include('user.urls', 'login'), name='login'),
     path('login/', include('account.urls', 'login')),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('upload/', views.upload, name='upload'),
+    path('getmap/', views.getmap, name='getmap'),
     # path('know/post/<int:id>', travel.views.know_show)
     url(r'^post/(?P<pk>\d+)/', views.know_show), 
     url(r'^uimage/$', views.uimage, name='uimage'),
+
+    path('test/', views.test, name='test'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
 # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

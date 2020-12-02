@@ -1,0 +1,66 @@
+{% extends 'travel/index.html' %}
+
+{% block content %}
+{% load static %}
+
+<div id="second_table" style="display:None;">
+    <center><table border='0'>
+        <tr><td rowspan="4">
+                <div id="map_div" style="color:black;">
+                    <img src="{% static 'img/tower_1.jpg' %}" style="width:900px; height:800px;">
+                </div></td>
+            <td style="width:20px;"></td>
+            <td style="width:20px;" bgcolor="#FF0000"></td>
+            <td style="width:300px; height:200px;">
+                <center><h3>첫번째 장소</h3></center><br>
+                <span>&nbsp길이:</span><br>
+                <span>&nbsp소요시간:</span>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td style="width:20px;" bgcolor="#FF8C00"></td>
+            <td style="height:200px;">
+                <center><h3>두번째 장소</h3></center><br>
+                <span>&nbsp길이:</span><br>
+                <span>&nbsp소요시간:</span>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td style="width:20px;" bgcolor="#FFFF00"></td>
+            <td style="height:200px;">
+                <center><h3>세번째 장소</h3></center><br>
+                <span>&nbsp길이:</span><br>
+                <span>&nbsp소요시간:</span>
+            </td>
+        <tr>
+            <td></td>
+            <td style="width:20px;"></td>
+            <td><center><a href="#">주변정보</a></center></td>
+        </tr>
+    </table></center>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    function getValue(){
+        $("input[name=fruit]:checked").each(function() { 
+            var fru = $(this).val();
+            console.log(fru);
+        });
+    }
+</script>
+
+<div>
+    <input type="checkbox" name="fruit" value="apple"/>사과
+    <input type="checkbox" name="fruit" value="strawberry"/>딸기
+    <input type="checkbox" name="fruit" value="lemon"/>레몬
+    <input type="checkbox" name="fruit" value="mango"/>망고
+    <input type="checkbox" name="fruit" value="melon"/>메론<br>
+    <button onclick="getValue()">체크된 객체 value 가져오기</button>
+</div>
+
+{% endblock%}
+
+    

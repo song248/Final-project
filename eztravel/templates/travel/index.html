@@ -65,7 +65,6 @@
                     <a class="nav-link" href="{% url 'howto' %}">이용안내</a>
                     {% if request.user.is_authenticated %}
                         <a class="nav-link" href="{% url 'logout' %}">로그아웃</a>
-                        
                     {% else %}
                         <a class="nav-link" href="{% url 'account:login' %}">로그인</a>
                     {% endif %}
@@ -81,7 +80,13 @@
                 인스타 속 그 장소가 궁금하다면?<br>
                 사진을 업로드하고 해당 장소를 확인해보세요!<br><br></p>
             <p class="lead">
-                <a href="{% url 'uimage' %}" class="btn btn-lg btn-secondary">확인하러 가기</a>
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'uimage' %}" class="btn btn-lg btn-secondary">확인하러 가기</a>
+                {% else %}
+                    <a onclick="alert('로그인이 필요한 서비스 입니다.');" style="cursor:pointer"
+                        href="{% url 'account:login' %}" class="btn btn-lg btn-secondary">확인하러 가기</a>
+                {% endif %}
+                    <a href="{% url 'test' %}" class="btn btn-lg btn-secondary">test</a>
             </p>
         </main>
         {% endblock %}

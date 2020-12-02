@@ -25,13 +25,13 @@
                         value="{{ form.password.value|default_if_none:'' }}" required style="width:350px">
                     <label for="inputPassword2"></label>
                 </div>
-            </center>
+            
 
             {% if form.errors %}
                 {% for field in form %}
                     {% for error in field.errors %}
                     <!-- 필드 오류를 출력한다. -->
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger" style="width:400px">
                             <strong>{{ field.label }}</strong>
                                 {{ error }}
                         </div>
@@ -39,13 +39,13 @@
                 {% endfor %}
                 {% for error in form.non_field_errors %}
                 <!-- 넌필드 오류를 출력한다. -->
-                    <div class="alert alert-danger">
+                    <div class="alert alert-danger" style="width:400px">
                         <strong>{{ error }}</strong>
                     </div>
                 {% endfor %}
             {% endif %}
             <br>
-            <center>
+            
             <button class="btn btn-lg btn-info btn-block btn-login text-uppercase font-weight-bold mb-2"
                 type="submit" style="width: 150px">가입하기</button>
             </center>
