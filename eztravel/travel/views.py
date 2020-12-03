@@ -74,6 +74,7 @@ def uimage(request):
         return render(request, 'travel/uimage.html', {'form': form})
 
 def getmap(request):
+
     print('upload page 시작')
     if request.method == 'POST':
         text=request.POST['result_data']
@@ -86,6 +87,11 @@ def getmap(request):
     # 포토존
     photozone_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_photozone.csv')
 
+    # 사전형으로 넘겨줄 때 df 형태를 가진 경우 error가 발생
+    # dataframe 형태를 list 형태로 변경
+    # x = restaurant['x'].tolist()
+    # y = restaurant['y'].tolist()
+
     # 명소의 좌표
     attraction = attraction_list[attraction_list['name'] == map_name(text)]
     location_x = attraction['x'].tolist()
@@ -97,34 +103,39 @@ def getmap(request):
     print('region', region)
 
     # 맵에 찍힌 명소와 주소 상 같은 지역인 맛집만을 알려주기 위해
-    rest_info = restaurant_list[restaurant_list['area'] == region]
+    rest_info = restaurant_list[restaurant_list['area'] == region][:4]
     rest_info_x = rest_info['x'].tolist()
     rest_info_y = rest_info['y'].tolist()
     rest_info_name = rest_info['name'].tolist()
-    print(len(rest_info_x), len(rest_info_y), len(rest_info_name))
+    # print(len(rest_info_x), len(rest_info_y), len(rest_info_name))
+    rest_info_phone = rest_info['phone'].tolist()
+    rest_info_time = rest_info['time'].tolist()
+    rest_info_star = rest_info['star'].tolist()
 
     # 위와 같이 맵에 찍힌 명소와 같은 지경의 포토존을 추천해주기 위해
-    photo_info = photozone_list[photozone_list['area'] == region]
+    photo_info = photozone_list[photozone_list['area'] == region][:3]
     photo_info_x = photo_info['x'].tolist()
     photo_info_y = photo_info['y'].tolist()
     photo_info_name = photo_info['name'].tolist()
-    print(len(rest_info_x), len(rest_info_y), len(rest_info_name))
+    # print(len(rest_info_x), len(rest_info_y), len(rest_info_name))
 
     context = {
         'y' : location_y,
         'x' : location_x,
         'name' : attr,
-        'x_rest' : rest_info_x[:4],
-        'y_rest' : rest_info_y[:4],
-        'n_rest' : rest_info_name[:4],
+        'x_rest' : rest_info_x,
+        'y_rest' : rest_info_y,
+        'n_rest' : rest_info_name,
+        'p_rest' : rest_info_phone,
+        't_rest' : rest_info_time,
+        's_rest' : rest_info_star,
         'x_photo' : photo_info_x,
         'y_photo' : photo_info_y,
         'n_photo' : photo_info_name,
     }
+
     return render(request, 'travel/tmap.html', context)
 
-def test(request):
-    return render(request, 'travel/test.html')
 
 result_dict = {
     'Skybay': '스카이베이',

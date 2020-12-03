@@ -22,9 +22,18 @@
 	var x_rest = JSON.parse('{{ x_rest }}');
 	var y_rest = JSON.parse('{{ y_rest }}');
 	var n_rest = '{{ n_rest }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').split(',') // string -> list
+	var p_rest = '{{ p_rest }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').split(',')
+	var t_rest = '{{ t_rest }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').split(',')
+	var s_rest = JSON.parse('{{ s_rest }}');
 	var new_n_rest=[];
 	for (var i=0;i<n_rest.length;i++) { new_n_rest.push(n_rest[i].trim()) } // 글자 앞 좌우 공백을 제거
 	n_rest = new_n_rest;
+	var new_p_rest=[];
+	for (var i=0;i<p_rest.length;i++) { new_p_rest.push(p_rest[i].trim()) } // 글자 앞 좌우 공백을 제거
+	p_rest = new_p_rest;
+	var new_t_rest=[];
+	for (var i=0;i<t_rest.length;i++) { new_t_rest.push(t_rest[i].trim()) } // 글자 앞 좌우 공백을 제거
+	t_rest = new_t_rest;
 
 	// 포토존의 정보
 	var x_photo = JSON.parse('{{ x_photo }}');
@@ -36,10 +45,10 @@
 
 	// 좌표사전
 	var location_dict = {};
-	location_dict[name] = [x, y]
-	get_location(n_rest, x_rest, y_rest)
-	get_location(n_photo, x_photo, y_photo)
-	console.log(location_dict)
+	location_dict[name] = [x, y] // 명소 정보를 사전에 추가
+	get_location([n_rest, x_rest, y_rest, p_rest, t_rest, s_rest])
+	get_location([n_photo, x_photo, y_photo])
+	console.log('location_dict', location_dict)
 
 	// 마커들을 저장할 배열입니다.
 	var markers = [];
@@ -120,9 +129,18 @@
 			
 			console.log('최단 경로 경로 >>', shortest_route[0])
 			console.log('최단 경로 거리 >>', shortest_route[1])
-			var shortcut = shortest_route[1].toFixed(4);
-			$("#result").text(shortest_route[0][0]+'->'+shortest_route[0][1]+'->'+shortest_route[0][2]+'->'+shortest_route[0][3]+'->'+shortest_route[0][4]);
-			$("#result2").text(String(shortest_route[1].toFixed(3))+'km');
+			var how_km = shortest_route[1].toFixed(4);
+			var how_route = "";
+			var route_order = shortest_route[0][0];
+			for (var i=1;i<shortest_route[0].length;i++) {
+				route_order += ' → '
+				route_order += shortest_route[0][i]
+			}
+			how_route = route_order
+
+
+			// $("#result").text(shortest_route[0][0]+'->'+shortest_route[0][1]+'->'+shortest_route[0][2]+'->'+shortest_route[0][3]+'->'+shortest_route[0][4]);
+			// $("#result2").text(String(shortest_route[1].toFixed(3))+'km');
 
 			// 선 그려주기
 			for (var i=0;i<shortest_route[0].length-1;i++) {
@@ -168,7 +186,8 @@
 						$("#region_info").show();
 						$("return_upload").show();
 						$("#btn_select").hide();
-						$('#how_km').html(shortcut);
+						$('#how_km').html(how_km);
+						$('#how_route').html(how_route);
 						$("show_km").show();
 					},
 					beforeSend:function(){
@@ -181,21 +200,49 @@
 	}
 
 	// 장소들에 대한 좌표 사전 만들기
-	function get_location(n, x, y) {
-		for (var i=0;i<n.length;i++) {
-			location_dict[n[i]] = [x[i], y[i]]
+	function get_location(info) {
+		for (var i=0;i<info[0].length;i++) {
+			if (info.length == 3) {
+				location_dict[info[0][i]] = [info[1][i], info[2][i]]
+			} else if (info.length == 4) {
+				location_dict[info[0][i]] = [info[1][i], info[2][i], info[3][i]]
+			} else if (info.length == 5) {
+				location_dict[info[0][i]] = [info[1][i], info[2][i], info[3][i], info[4][i]]
+			} else if (info.length == 6) {
+				location_dict[info[0][i]] = [info[1][i], info[2][i], info[3][i], info[4][i], info[5][i]]
+			}
 		}
 	}
 	// 우측 체크리스트 텍스트 띄우기
 	function show_location_info() {
-		$("#first_restaurant").text(n_rest[0]);
-		$("#second_restaurant").text(n_rest[1]);
-		$("#third_restaurant").text(n_rest[2]);
-		$("#forth_restaurant").text(n_rest[3]);
+		var first_link = "<a href='https://map.naver.com/v5/search/"+n_rest[0]+"'>"+n_rest[0]+"</a>"
+		$("#first_res_link").html(first_link);
+		$("#first_restaurant").text(' (★'+s_rest[0]+') '+' / tel: '+p_rest[0]);
+		$("#first_restaurant_time").text('영업시간: '+t_rest[0]);
 
-		$("#first_photozone").text(n_photo[0]);
-		$("#second_photozone").text(n_photo[1]);
-		$("#third_photozone").text(n_photo[2]);
+		var second_link = "<a href='https://map.naver.com/v5/search/"+n_rest[1]+"'>"+n_rest[1]+"</a>"
+		$("#second_res_link").html(second_link);
+		$("#second_restaurant").text(' (★'+s_rest[1]+') '+' / tel: '+p_rest[1]);
+		$("#second_restaurant_time").text('영업시간: '+t_rest[1]);
+
+		var third_link = "<a href='https://map.naver.com/v5/search/"+n_rest[2]+"'>"+n_rest[2]+"</a>"
+		$("#third_res_link").html(third_link);
+		$("#third_restaurant").text(' (★'+s_rest[2]+') '+' / tel: '+p_rest[2]);
+		$("#third_restaurant_time").text('영업시간: '+t_rest[2]);
+
+		var forth_link = "<a href='https://map.naver.com/v5/search/"+n_rest[3]+"'>"+n_rest[3]+"</a>"
+		$("#forth_res_link").html(forth_link);
+		$("#forth_restaurant").text(' (★'+s_rest[3]+') '+' / tel: '+p_rest[3]);
+		$("#forth_restaurant_time").text('영업시간: '+t_rest[3]);
+		
+		var first_photo = "<a href='https://map.naver.com/v5/search/"+n_photo[0]+"'>"+n_photo[0]+"</a>"
+		$("#first_photozone").html(first_photo);
+
+		var second_photo = "<a href='https://map.naver.com/v5/search/"+n_photo[1]+"'>"+n_photo[1]+"</a>"
+		$("#second_photozone").html(second_photo);
+
+		var third_photo = "<a href='https://map.naver.com/v5/search/"+n_photo[2]+"'>"+n_photo[2]+"</a>"
+		$("#third_photozone").html(third_photo);
 	}
 
 	// 명소 위치에 마크 찍어주기
@@ -367,57 +414,77 @@
 
 <body onload="initTmap()"> <!--함수 호출-->
 	<div id="first_table">
-		<center><table border='0'>
+		<center><table border='0' bgcolor="#444444">
 			<tr><td rowspan="5">
 				<div id="map_div" style="color:black;"></div></td>
 				<td style="width:20px;"></td>
-				<td style="width:300px; height:200px;">
+				<td style="width:430px;">
 					<p><h3>&nbsp맛집</h3></p>
-					<label>
-						<span><input type="checkbox" name="restau" value="r_first">&nbsp</span><span<p id="first_restaurant">1번 맛집</p></span>
-					</label><br>
-					<label>
-						<span><input type="checkbox" name="restau" value="r_second">&nbsp</span><span<p id="second_restaurant">2번 맛집</p></span>
-					</label><br>
-					<label>
-						<span><input type="checkbox" name="restau" value="r_third">&nbsp</span><span<p id="third_restaurant">3번 맛집</p></span>
-					</label><br>
-					<label>
-						<span><input type="checkbox" name="restau" value="r_forth">&nbsp</span><span<p id="forth_restaurant">4번 맛집</p></span>
-					</label>
+					<div>
+						<span><input type="checkbox" name="restau" value="r_first" style="white-space:nowrap;">
+						<span id="first_res_link"></span>
+						<span id="first_restaurant">1번 맛집</div></span>
+						<span><p id="first_restaurant_time"></p></span>
+					</div>
+					<div>
+						<span><input type="checkbox" name="restau" value="r_second" style="white-space:nowrap;">
+						<span id="second_res_link"></span>
+						<span id="second_restaurant">2번 맛집</div></span>
+						<span><p id="second_restaurant_time"></p></span>
+					</div>
+					<div>
+						<span><input type="checkbox" name="restau" value="r_third" style="white-space:nowrap;">
+						<span id="third_res_link"></span>
+						<span id="third_restaurant">3번 맛집</div></span>
+						<span><p id="third_restaurant_time"></p></span>
+					</div>
+					<div>
+						<span><input type="checkbox" name="restau" value="r_forth" style="white-space:nowrap;">
+						<span id="forth_res_link"></span>
+						<span id="forth_restaurant">4번 맛집</div></span>
+						<span><p id="forth_restaurant_time"></p></span>
+					</div>
 				</td>
 			</tr>
 			<tr>
 				<td></td>
-				<td style="height:200px;">
+				<td>
 					<p><h3>&nbsp포토스팟</h3></p>
-					<label>
-						<span><input type="checkbox" name="photo" value="p_first">&nbsp</span><span<p id="first_photozone">1번 스팟</p></span>
-					</label><br>
-					<label>
-						<span><input type="checkbox" name="photo" value="p_second">&nbsp</span><span<p id="second_photozone">2번 스팟</p></span>
-					</label><br>
-					<label>
-						<span><input type="checkbox" name="photo" value="p_third">&nbsp</span><span<p id="third_photozone">3번 스팟</p></span>
-				 	</label>
+					<div>
+						<span><input type="checkbox" name="photo" value="p_first" style="white-space:nowrap;">
+						<span id="first_photozone"></span>
+					</div>
+					<div>
+						<span><input type="checkbox" name="photo" value="p_second" style="white-space:nowrap;">
+						<span id="second_photozone"></span>
+					</div>
+					<div>
+						<span><input type="checkbox" name="photo" value="p_third" style="white-space:nowrap;">
+						<span id="third_photozone"></span>
+					</div>
 				</td>
 			</tr>
 			<tr>
 				<td></td>
-				<td style="height:50px;"><center>
+				<td><center>
 					<button id="btn_select" style="width:250px; font-weight:bold;" class="btn btn-lg btn-secondary" onclick="getValue()">경로 생성</button>
 		   		</center></td>
 			</tr>
 			<tr>
 				<td></td>
-				<td id="region_info" style="display:None;"><center>
-					<span>총 길이:&nbsp</span><span id="how_km"></span><span>&nbsp km</span><br><br>
-					<a href="{% url 'uimage' %}" style="width:250px; height:50px; font-weight:bold;" class="btn btn-lg btn-secondary">다른 사진 업로드</a><br><br><br><br><br>
-					<a href="#" class="btn btn-lg btn-info btn-block btn-login text-uppercase font-weight-bold mb-2" style="width:200px;">주변정보</a>
-				</center></td>
+				<td id="region_info" style="display:None;">
+					<span>총 길이:&nbsp</span><span id="how_km"></span><span>&nbsp km</span><br>
+					<span>최단 경로:&nbsp</span><span id="how_route"></span><span>&nbsp 입니다.</span><br><br>
+					<center>
+					<a href="{% url 'uimage' %}" style="width:250px; font-weight:bold;" 
+						class="btn btn-lg btn-primary btn-block btn-login font-weight-bold mb-2">다른 사진 업로드</a>
+					<a href="#" class="btn btn-lg btn-info btn-block btn-login text-uppercase font-weight-bold mb-2" style="width:250px;">주변정보</a>
+					</center>
+				</td>
 			</tr>
 		</table></center>
 	</div>
 </body>
 
 {% endblock %}
+
