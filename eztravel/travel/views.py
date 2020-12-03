@@ -73,15 +73,6 @@ def uimage(request):
         print(form, "----------------------------------------------------------------------")
         return render(request, 'travel/uimage.html', {'form': form})
 
-def test(request):
-    if request.method == 'POST':
-        text=request.POST['result_data']
-    print("status: ", text)
-    context = {
-        'place' : text,
-    }
-    return render(request, 'travel/test.html', context)
-
 def getmap(request):
     print('upload page 시작')
     if request.method == 'POST':
@@ -94,7 +85,6 @@ def getmap(request):
     restaurant_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_restaurant.csv')
     # 포토존
     photozone_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_photozone.csv')
-
 
     # 명소의 좌표
     attraction = attraction_list[attraction_list['name'] == map_name(text)]
@@ -131,7 +121,6 @@ def getmap(request):
         'y_photo' : photo_info_y,
         'n_photo' : photo_info_name,
     }
-
     return render(request, 'travel/tmap.html', context)
 
 def test(request):

@@ -55,6 +55,8 @@
 	// 선을 그리기 위해
 	var resultdrawArr = []; 
 
+	var p_to_p = {}; // 장소간의 거리 저장
+
 	// 페이지가 로딩이 된 후 호출하는 함수입니다.
 	function initTmap(){
 		show_location_info(); // 우측의 체크리스트
@@ -65,14 +67,15 @@
             zoom: 8, // 지도 확대
             zoomControl:true,
             scrollwheel:true,
-            width: "900px", // map의 width 설정
-            height: "800px" // map의 height 설정
+            width: "800px", // map의 width 설정
+            height: "700px" // map의 height 설정
          });
 		addMarker(); // 명소 마커 찍는 함수
 		moveCenter(); // 좌표를 중심으로 지도 이동
 
 		// 버튼 클릭시 활성화
-		$('#btn_select').click(function() {
+		$('#btn_select').click(function(e){
+			e.preventDefault();
 			checkbox_list = check_to_name() // checklist에서 나온 것을 저장
 			// console.log('checkbox_list', checkbox_list)
 
@@ -85,46 +88,7 @@
 			var point_route = getPermutations(points, points.length)
 			console.log('이어질 수 있는 모든 경우 >> ', point_route)
 
-			var p_to_p = {}; // 장소간의 거리 저장
-
-			// 모든 장소들간의 거리를 계산
-			for (var i=0;i<points.length-1;i++) {
-				for (var j=i+1;j<points.length;j++) {
-					console.log(points[i], '<-->', points[j])
-					console.log('start:', String(location_dict[points[i]][0]), String(location_dict[points[i]][1]))
-					console.log('end:', String(location_dict[points[j]][0]), String(location_dict[points[j]][1]))
-
-					// 장소와 장소간의 거리 계산
-					$.ajax({
-						type : "POST",
-						url : "https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result",
-						async : false, // ajax 를 돌릴 떄 순차적으로 돌 수 있도록 하기 위해서
-						data : {
-							"appKey" : "l7xx0bc558171c774e4ba754afa0476b3077",
-							"startX" : String(location_dict[points[i]][0]),
-							"startY" : String(location_dict[points[i]][1]),
-							"endX" : String(location_dict[points[j]][0]),
-							"endY" : String(location_dict[points[j]][1]),
-							"reqCoordType" : "WGS84GEO", // 요청 좌표계 옵션
-							"resCoordType" : "EPSG3857" // 응답 좌표계 옵션
-						},
-						success:function(response){ //API가 제대로 작동할 경우 실행될 코드
-							var resultData = response.features;
-							var distance = (resultData[0].properties.totalDistance / 1000) // toFixes(1) : 소수 첫 째 자리까지만
-
-							p_to_p[points[i] +','+ points[j]] = Number(distance); // 장소간의 거리를 사전에 저장
-							p_to_p[points[j] +','+ points[i]] = Number(distance);
-							// var tDistance = "총 거리 : "+ (resultData[0].properties.totalDistance / 1000).toFixed(1) + "km,";
-							// $("#result").text(tDistance);
-							console.log(points[i], points[j])
-							console.log(distance)
-						}
-					}); // ------ ajax로 거리 받아오기
-					// 요청 시간이 너무 빨라 딜레이를 넣어준다.
-					sleep(500); // 1초
-				}
-			} // --------- 거리를 구하기 위해 반복
-
+			get_distance()
 
 			console.log('거리 사전 complete >> ', p_to_p) // 거리 사전 완성 확인
 
@@ -153,9 +117,10 @@
 					shortest_route = point_route_list[i]
 				}
 			}
-
+			
 			console.log('최단 경로 경로 >>', shortest_route[0])
 			console.log('최단 경로 거리 >>', shortest_route[1])
+			var shortcut = shortest_route[1].toFixed(4);
 			$("#result").text(shortest_route[0][0]+'->'+shortest_route[0][1]+'->'+shortest_route[0][2]+'->'+shortest_route[0][3]+'->'+shortest_route[0][4]);
 			$("#result2").text(String(shortest_route[1].toFixed(3))+'km');
 
@@ -200,7 +165,15 @@
 								drawLine(drawInfoArr, i);
 							}
 						}
-					}
+						$("#region_info").show();
+						$("return_upload").show();
+						$("#btn_select").hide();
+						$('#how_km').html(shortcut);
+						$("show_km").show();
+					},
+					beforeSend:function(){
+						console.log('beforesend')
+					},
 				}); // ---------- 여기 까지가 ajax
 				sleep(500);
 			}
@@ -309,7 +282,75 @@
 		});
 		resultdrawArr.push(polyline_);
 	}
-	
+
+	function check_to_name() {
+		// 맛집의 좌표를 찍어주기 위해
+		restaurant_num = [];
+		for (var i=0;i<r_checkbox_list.length;i++) {
+			if (r_checkbox_list[i] == 'r_first') {
+				restaurant_num.push(n_rest[0])
+			} else if (r_checkbox_list[i] == 'r_second') {
+				restaurant_num.push(n_rest[1])
+			} else if (r_checkbox_list[i] == 'r_third') {
+				restaurant_num.push(n_rest[2])
+			} else if (r_checkbox_list[i] == 'r_forth') {
+				restaurant_num.push(n_rest[3])
+			} 
+		}
+		// 포토존 좌표를 찍어주기 위해
+		photozone_num = [];
+		for (var i=0;i<p_checkbox_list.length;i++) {
+			if (p_checkbox_list[i] == 'p_first') {
+				photozone_num.push(n_photo[0])
+			} else if (p_checkbox_list[i] == 'p_second') {
+				photozone_num.push(n_photo[1])
+			} else if (p_checkbox_list[i] == 'p_third') {
+				photozone_num.push(n_photo[2])
+			}
+		}
+		return [...restaurant_num, ...photozone_num]
+	}
+
+	function get_distance() {
+		// 모든 장소들간의 거리를 계산
+		for (var i=0;i<points.length-1;i++) {
+			for (var j=i+1;j<points.length;j++) {
+				console.log(points[i], '<-->', points[j])
+				console.log('start:', String(location_dict[points[i]][0]), String(location_dict[points[i]][1]))
+				console.log('end:', String(location_dict[points[j]][0]), String(location_dict[points[j]][1]))
+
+				// 장소와 장소간의 거리 계산
+				$.ajax({
+					type : "POST",
+					url : "https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result",
+					async : false, // ajax 를 돌릴 떄 순차적으로 돌 수 있도록 하기 위해서
+					data : {
+						"appKey" : "l7xx0bc558171c774e4ba754afa0476b3077",
+						"startX" : String(location_dict[points[i]][0]),
+						"startY" : String(location_dict[points[i]][1]),
+						"endX" : String(location_dict[points[j]][0]),
+						"endY" : String(location_dict[points[j]][1]),
+						"reqCoordType" : "WGS84GEO", // 요청 좌표계 옵션
+						"resCoordType" : "EPSG3857" // 응답 좌표계 옵션
+					},
+					success:function(response){ //API가 제대로 작동할 경우 실행될 코드
+						var resultData = response.features;
+						var distance = (resultData[0].properties.totalDistance / 1000) // toFixes(1) : 소수 첫 째 자리까지만
+
+						p_to_p[points[i] +','+ points[j]] = Number(distance); // 장소간의 거리를 사전에 저장
+						p_to_p[points[j] +','+ points[i]] = Number(distance);
+						// var tDistance = "총 거리 : "+ (resultData[0].properties.totalDistance / 1000).toFixed(1) + "km,";
+						// $("#result").text(tDistance);
+						console.log(points[i], points[j])
+						console.log(distance)
+					}
+				}); // ------ ajax로 거리 받아오기
+				// 요청 시간이 너무 빨라 딜레이를 넣어준다.
+				sleep(500); // 1초
+			}
+		} // --------- 거리를 구하기 위해 반복
+	}
+
 	// 체크박스 반영하기
 	function getValue(){
         $("input[name=restau]:checked").each(function() { 
@@ -321,85 +362,62 @@
 			p_checkbox_list.push(photozo)
     	});
 	}
-
-	function check_to_name() {
-		// 맛집의 좌표를 찍어주기 위해
-		restaurant_num = [];
-			for (var i=0;i<r_checkbox_list.length;i++) {
-				if (r_checkbox_list[i] == 'r_first') {
-					restaurant_num.push(n_rest[0])
-				} else if (r_checkbox_list[i] == 'r_second') {
-					restaurant_num.push(n_rest[1])
-				} else if (r_checkbox_list[i] == 'r_third') {
-					restaurant_num.push(n_rest[2])
-				} else if (r_checkbox_list[i] == 'r_forth') {
-					restaurant_num.push(n_rest[3])
-				} 
-			}
-
-			// 포토존 좌표를 찍어주기 위해
-			photozone_num = [];
-			for (var i=0;i<p_checkbox_list.length;i++) {
-				if (p_checkbox_list[i] == 'p_first') {
-					photozone_num.push(n_photo[0])
-				} else if (p_checkbox_list[i] == 'p_second') {
-					photozone_num.push(n_photo[1])
-				} else if (p_checkbox_list[i] == 'p_third') {
-					photozone_num.push(n_photo[2])
-				}
-			}
-
-			return [...restaurant_num, ...photozone_num]
-	}
 </script>
 </head>
 
 <body onload="initTmap()"> <!--함수 호출-->
 	<div id="first_table">
 		<center><table border='0'>
-		   <tr><td rowspan="4">
-				 <div id="map_div" style="color:black;"></div></td>
-					<td style="width:20px;"></td>
-					<td style="width:300px; height:250px;">
-				 <p><h3>&nbsp맛집</h3></p>
-				 <label>
-					<span><input type="checkbox" name="restau" value="r_first">&nbsp</span><span<p id="first_restaurant">1번 맛집</p></span>
-				 </label><br>
-				 <label>
-					<span><input type="checkbox" name="restau" value="r_second">&nbsp</span><span<p id="second_restaurant">2번 맛집</p></span>
-				 </label><br>
-				 <label>
-					<span><input type="checkbox" name="restau" value="r_third">&nbsp</span><span<p id="third_restaurant">3번 맛집</p></span>
-				 </label><br>
-				 <label>
-					<span><input type="checkbox" name="restau" value="r_forth">&nbsp</span><span<p id="forth_restaurant">4번 맛집</p></span>
-				 </label>
-			  </td></tr>
-		   <tr>
-			  <td></td>
-			  <td style="height:250px;">
-				 <p><h3>&nbsp포토스팟</h3></p>
-				 <label>
-					<span><input type="checkbox" name="photo" value="p_first">&nbsp</span><span<p id="first_photozone">1번 스팟</p></span>
-				 </label><br>
-				 <label>
-					<span><input type="checkbox" name="photo" value="p_second">&nbsp</span><span<p id="second_photozone">2번 스팟</p></span>
-				 </label><br>
-				 <label>
-					<span><input type="checkbox" name="photo" value="p_third">&nbsp</span><span<p id="third_photozone">3번 스팟</p></span>
-				 </label>
-			  </td></tr>
-		   <tr>
-			  <td></td>
-			  <td style="height:100px;"><center>
-			  <button id="btn_select" style="width:300px;height:70px; font-weight:bold;" class="btn btn-lg btn-secondary" onclick="getValue()">경로생성</button>
-		   </center></td></tr>
-		   <tr>
-			  <td></td>
-			  <td><center><a href="#">주변정보</a></center></td>
-		   </tr>
+			<tr><td rowspan="5">
+				<div id="map_div" style="color:black;"></div></td>
+				<td style="width:20px;"></td>
+				<td style="width:300px; height:200px;">
+					<p><h3>&nbsp맛집</h3></p>
+					<label>
+						<span><input type="checkbox" name="restau" value="r_first">&nbsp</span><span<p id="first_restaurant">1번 맛집</p></span>
+					</label><br>
+					<label>
+						<span><input type="checkbox" name="restau" value="r_second">&nbsp</span><span<p id="second_restaurant">2번 맛집</p></span>
+					</label><br>
+					<label>
+						<span><input type="checkbox" name="restau" value="r_third">&nbsp</span><span<p id="third_restaurant">3번 맛집</p></span>
+					</label><br>
+					<label>
+						<span><input type="checkbox" name="restau" value="r_forth">&nbsp</span><span<p id="forth_restaurant">4번 맛집</p></span>
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td style="height:200px;">
+					<p><h3>&nbsp포토스팟</h3></p>
+					<label>
+						<span><input type="checkbox" name="photo" value="p_first">&nbsp</span><span<p id="first_photozone">1번 스팟</p></span>
+					</label><br>
+					<label>
+						<span><input type="checkbox" name="photo" value="p_second">&nbsp</span><span<p id="second_photozone">2번 스팟</p></span>
+					</label><br>
+					<label>
+						<span><input type="checkbox" name="photo" value="p_third">&nbsp</span><span<p id="third_photozone">3번 스팟</p></span>
+				 	</label>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td style="height:50px;"><center>
+					<button id="btn_select" style="width:250px; font-weight:bold;" class="btn btn-lg btn-secondary" onclick="getValue()">경로 생성</button>
+		   		</center></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td id="region_info" style="display:None;"><center>
+					<span>총 길이:&nbsp</span><span id="how_km"></span><span>&nbsp km</span><br><br>
+					<a href="{% url 'uimage' %}" style="width:250px; height:50px; font-weight:bold;" class="btn btn-lg btn-secondary">다른 사진 업로드</a><br><br><br><br><br>
+					<a href="#" class="btn btn-lg btn-info btn-block btn-login text-uppercase font-weight-bold mb-2" style="width:200px;">주변정보</a>
+				</center></td>
+			</tr>
 		</table></center>
-	 </div>
+	</div>
 </body>
 
 {% endblock %}

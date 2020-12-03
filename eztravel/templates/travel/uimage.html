@@ -16,7 +16,7 @@
     var im_file;
     $("#submit").click(function(e) {
         e.preventDefault();
-        var form = $("#myForm")[0]; //data 가져오기 어떻게??
+        var form = $("#myForm")[0]; 
         var formData = new FormData(form);
         $.ajax({
             cache : false,
