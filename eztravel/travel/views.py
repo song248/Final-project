@@ -205,3 +205,4 @@ def get_db():
         table_info.append(info)
 
     return table_info
+    # commit 확인용
