@@ -25,6 +25,7 @@
 	var p_rest = '{{ p_rest }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').split(',')
 	var t_rest = '{{ t_rest }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').split(',')
 	var s_rest = JSON.parse('{{ s_rest }}');
+	var m_rest = '{{ m_rest }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').split(',')
 	var new_n_rest=[];
 	for (var i=0;i<n_rest.length;i++) { new_n_rest.push(n_rest[i].trim()) } // 글자 앞 좌우 공백을 제거
 	n_rest = new_n_rest;
@@ -34,6 +35,9 @@
 	var new_t_rest=[];
 	for (var i=0;i<t_rest.length;i++) { new_t_rest.push(t_rest[i].trim()) } // 글자 앞 좌우 공백을 제거
 	t_rest = new_t_rest;
+	var new_m_rest=[];
+	for (var i=0;i<m_rest.length;i++) { new_m_rest.push(m_rest[i].trim()) } // 글자 앞 좌우 공백을 제거
+	m_rest = new_m_rest;
 
 	// 포토존의 정보
 	var x_photo = JSON.parse('{{ x_photo }}');
@@ -46,7 +50,7 @@
 	// 좌표사전
 	var location_dict = {};
 	location_dict[name] = [x, y] // 명소 정보를 사전에 추가
-	get_location([n_rest, x_rest, y_rest, p_rest, t_rest, s_rest])
+	get_location([n_rest, x_rest, y_rest, p_rest, t_rest, s_rest, m_rest])
 	get_location([n_photo, x_photo, y_photo])
 	console.log('location_dict', location_dict)
 
@@ -115,8 +119,6 @@
 				}
 				point_route_list.push([point_route[i], len_point_routes]) // 경로순서이름, 거리합
 			}
-			// console.log('최단 경로 리스트 >> ', point_route_list)
-			// shortest_route = Math.min.apply(null, point_route_list); // 최솟값 찾기
 
 			// 최단 거리 찾기 
 			var shortest_route=['', 1000000000000000000]; // 저장하기 용
@@ -137,10 +139,6 @@
 				route_order += shortest_route[0][i]
 			}
 			how_route = route_order
-
-
-			// $("#result").text(shortest_route[0][0]+'->'+shortest_route[0][1]+'->'+shortest_route[0][2]+'->'+shortest_route[0][3]+'->'+shortest_route[0][4]);
-			// $("#result2").text(String(shortest_route[1].toFixed(3))+'km');
 
 			// 선 그려주기
 			for (var i=0;i<shortest_route[0].length-1;i++) {
@@ -210,6 +208,8 @@
 				location_dict[info[0][i]] = [info[1][i], info[2][i], info[3][i], info[4][i]]
 			} else if (info.length == 6) {
 				location_dict[info[0][i]] = [info[1][i], info[2][i], info[3][i], info[4][i], info[5][i]]
+			} else if (info.length == 7) {
+				location_dict[info[0][i]] = [info[1][i], info[2][i], info[3][i], info[4][i], info[5][i], info[6][i]]
 			}
 		}
 	}
@@ -217,23 +217,28 @@
 	function show_location_info() {
 		var first_link = "<a href='https://map.naver.com/v5/search/"+n_rest[0]+"'>"+n_rest[0]+"</a>"
 		$("#first_res_link").html(first_link);
-		$("#first_restaurant").text(' (★'+s_rest[0]+') '+' / tel: '+p_rest[0]);
+		$("#first_restaurant").text(' (★'+s_rest[0]+') '+' / 대표메뉴: '+m_rest[0]);
 		$("#first_restaurant_time").text('영업시간: '+t_rest[0]);
+		$("#first_restaurant_tel").text('☎Tel: '+p_rest[0]);
 
 		var second_link = "<a href='https://map.naver.com/v5/search/"+n_rest[1]+"'>"+n_rest[1]+"</a>"
 		$("#second_res_link").html(second_link);
-		$("#second_restaurant").text(' (★'+s_rest[1]+') '+' / tel: '+p_rest[1]);
+		$("#second_restaurant").text(' (★'+s_rest[1]+') '+' / 대표메뉴: '+m_rest[1]);
 		$("#second_restaurant_time").text('영업시간: '+t_rest[1]);
+		$("#second_restaurant_tel").text('☎Tel: '+p_rest[1]);
 
 		var third_link = "<a href='https://map.naver.com/v5/search/"+n_rest[2]+"'>"+n_rest[2]+"</a>"
 		$("#third_res_link").html(third_link);
-		$("#third_restaurant").text(' (★'+s_rest[2]+') '+' / tel: '+p_rest[2]);
+		$("#third_restaurant").text(' (★'+s_rest[2]+') '+' / 대표메뉴: '+m_rest[2]);
 		$("#third_restaurant_time").text('영업시간: '+t_rest[2]);
+		$("#third_restaurant_tel").text('☎Tel: '+p_rest[2]);
 
 		var forth_link = "<a href='https://map.naver.com/v5/search/"+n_rest[3]+"'>"+n_rest[3]+"</a>"
 		$("#forth_res_link").html(forth_link);
-		$("#forth_restaurant").text(' (★'+s_rest[3]+') '+' / tel: '+p_rest[3]);
+		$("#forth_restaurant").text(' (★'+s_rest[3]+') '+' / 대표메뉴: '+m_rest[3]);
 		$("#forth_restaurant_time").text('영업시간: '+t_rest[3]);
+		$("#forth_restaurant_tel").text('☎Tel: '+p_rest[3]);
+
 		
 		var first_photo = "<a href='https://map.naver.com/v5/search/"+n_photo[0]+"'>"+n_photo[0]+"</a>"
 		$("#first_photozone").html(first_photo);
@@ -424,25 +429,25 @@
 						<span><input type="checkbox" name="restau" value="r_first" style="white-space:nowrap;">
 						<span id="first_res_link"></span>
 						<span id="first_restaurant">1번 맛집</div></span>
-						<span><p id="first_restaurant_time"></p></span>
+						<span><div id="first_restaurant_time"></div><div id="first_restaurant_tel"></div></span><br>
 					</div>
 					<div>
 						<span><input type="checkbox" name="restau" value="r_second" style="white-space:nowrap;">
 						<span id="second_res_link"></span>
 						<span id="second_restaurant">2번 맛집</div></span>
-						<span><p id="second_restaurant_time"></p></span>
+						<span><div id="second_restaurant_time"></div><div id="second_restaurant_tel"></div></span><br>
 					</div>
 					<div>
 						<span><input type="checkbox" name="restau" value="r_third" style="white-space:nowrap;">
 						<span id="third_res_link"></span>
 						<span id="third_restaurant">3번 맛집</div></span>
-						<span><p id="third_restaurant_time"></p></span>
+						<span><div id="third_restaurant_time"></div><div id="third_restaurant_tel"></div></span><br>
 					</div>
 					<div>
 						<span><input type="checkbox" name="restau" value="r_forth" style="white-space:nowrap;">
 						<span id="forth_res_link"></span>
 						<span id="forth_restaurant">4번 맛집</div></span>
-						<span><p id="forth_restaurant_time"></p></span>
+						<span><div id="forth_restaurant_time"></div><div id="forth_restaurant_tel"></div></span><br>
 					</div>
 				</td>
 			</tr>

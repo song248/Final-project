@@ -31,6 +31,7 @@ urlpatterns = [
     path('main/', views.mainview.as_view(), name='main'),
     path('howto/', views.howto, name='howto'),
     path('know/', views.know, name='know'),
+    # path('place_info/', views.place_info, name='place_info'),
     # path('login/', user.views.LoginView, name='login'),
     # path('login/', include('user.urls', 'login'), name='login'),
     path('login/', include('account.urls', 'login')),

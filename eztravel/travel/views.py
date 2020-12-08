@@ -7,7 +7,8 @@ from .forms import UploadImageForm
 from django.core.files.storage import FileSystemStorage
 from travel import Using_Saved_Model
 import pandas as pd
-import random, json
+import random, json, pymysql
+pymysql.install_as_MySQLdb()
 
 # Create your views here.
 class mainview(LoginRequiredMixin, View):
@@ -74,23 +75,29 @@ def uimage(request):
         return render(request, 'travel/uimage.html', {'form': form})
 
 def getmap(request):
-
     print('upload page 시작')
     if request.method == 'POST':
         text=request.POST['result_data']
     print("status: ", text)
 
-    # 명소
-    attraction_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_attraction.csv')
-    # 맛집
-    restaurant_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_restaurant.csv')
-    # 포토존
-    photozone_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_photozone.csv')
 
-    # 사전형으로 넘겨줄 때 df 형태를 가진 경우 error가 발생
-    # dataframe 형태를 list 형태로 변경
-    # x = restaurant['x'].tolist()
-    # y = restaurant['y'].tolist()
+    # db에서 모든 table 정보를 list 형태로 가져옴
+    db_info = get_db()
+    
+    # 명소
+    #attraction_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_attraction.csv')
+    attraction_list = pd.DataFrame(db_info[0])
+    attraction_list.columns = ['name', 'location', 'y', 'x', 'area']
+
+    # 맛집
+    # restaurant_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_restaurant.csv')
+    restaurant_list = pd.DataFrame(db_info[2])
+    restaurant_list.columns = ['name', 'menu', 'location', 'y', 'x', 'area', 'phone', 'time', 'star']
+
+    # 포토존
+    # photozone_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_photozone.csv')
+    photozone_list = pd.DataFrame(db_info[1])
+    photozone_list.columns = ['name', 'location', 'y', 'x', 'area']
 
     # 명소의 좌표
     attraction = attraction_list[attraction_list['name'] == map_name(text)]
@@ -111,7 +118,7 @@ def getmap(request):
     rest_info_phone = rest_info['phone'].tolist()
     rest_info_time = rest_info['time'].tolist()
     rest_info_star = rest_info['star'].tolist()
-
+    rest_info_menu = rest_info['menu'].tolist()
     # 위와 같이 맵에 찍힌 명소와 같은 지경의 포토존을 추천해주기 위해
     photo_info = photozone_list[photozone_list['area'] == region][:3]
     photo_info_x = photo_info['x'].tolist()
@@ -129,6 +136,7 @@ def getmap(request):
         'p_rest' : rest_info_phone,
         't_rest' : rest_info_time,
         's_rest' : rest_info_star,
+        'm_rest' : rest_info_menu,
         'x_photo' : photo_info_x,
         'y_photo' : photo_info_y,
         'n_photo' : photo_info_name,
@@ -166,3 +174,34 @@ result_dict = {
 def map_name(model_result):
     map_name = result_dict[model_result]
     return map_name
+
+# def place_info(request):
+    # return render(request, 'travel/place_info.html')
+
+def get_db():
+    mysql = pymysql.connect(
+        user='admin',
+        db='final_db',
+        passwd='adminmysql',
+        host='database-1.c9jk87ku5jbk.us-east-1.rds.amazonaws.com',
+        charset='utf8',
+    )
+    cursor = mysql.cursor()
+
+    # DB에 존자하는 테이블 보기
+    sql = "show tables;"
+    cursor.execute(sql)
+    tables = cursor.fetchall()
+    print(tables)
+
+    # 테이블에 저장된 정보 보기
+    table_info = []
+    for table in tables:
+        cmd = "SELECT * FROM {}".format(table[0])
+        print(cmd)
+        
+        cursor.execute(cmd)
+        info = list(cursor.fetchall())
+        table_info.append(info)
+
+    return table_info
