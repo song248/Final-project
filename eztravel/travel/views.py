@@ -109,22 +109,45 @@ def getmap(request):
     region = attraction['area'].tolist()[0]
     print('region', region)
 
+    # 명소와 가장 가까운 곳을 알려주기 위해
+    r_sorted_list = []
+    for rest in restaurant_list[restaurant_list['area'] == region].values:
+        y = abs(location_y[0] - rest[3])
+        x = abs(location_x[0] - rest[4])
+        r_sorted_list.append([x+y, rest.tolist()])
+    r_sorted_list = sorted(r_sorted_list)
+    new_r_list = []
+    for i in r_sorted_list:
+        new_r_list.append(i[1])
+    new_restaurant_list = pd.DataFrame(new_r_list, columns = ['name', 'menu', 'location', 'y', 'x', 'area', 'phone', 'time', 'star'])
+
+    p_sorted_list = []
+    for rest in photozone_list[photozone_list['area'] == region].values:
+        y = abs(location_y[0] - rest[2])
+        x = abs(location_x[0] - rest[3])
+        p_sorted_list.append([x+y, rest.tolist()])
+    p_sorted_list = sorted(p_sorted_list)
+    new_p_list = []
+    for i in p_sorted_list:
+        new_p_list.append(i[1])
+    new_photozone_list = pd.DataFrame(new_p_list, columns = ['name', 'location', 'y', 'x', 'area'])
+
+
     # 맵에 찍힌 명소와 주소 상 같은 지역인 맛집만을 알려주기 위해
-    rest_info = restaurant_list[restaurant_list['area'] == region][:4]
+    rest_info = new_restaurant_list[new_restaurant_list['area'] == region][:4]
     rest_info_x = rest_info['x'].tolist()
     rest_info_y = rest_info['y'].tolist()
     rest_info_name = rest_info['name'].tolist()
-    # print(len(rest_info_x), len(rest_info_y), len(rest_info_name))
     rest_info_phone = rest_info['phone'].tolist()
     rest_info_time = rest_info['time'].tolist()
     rest_info_star = rest_info['star'].tolist()
     rest_info_menu = rest_info['menu'].tolist()
+
     # 위와 같이 맵에 찍힌 명소와 같은 지경의 포토존을 추천해주기 위해
-    photo_info = photozone_list[photozone_list['area'] == region][:3]
+    photo_info = new_photozone_list[new_photozone_list['area'] == region][:3]
     photo_info_x = photo_info['x'].tolist()
     photo_info_y = photo_info['y'].tolist()
     photo_info_name = photo_info['name'].tolist()
-    # print(len(rest_info_x), len(rest_info_y), len(rest_info_name))
 
     context = {
         'y' : location_y,
@@ -168,8 +191,24 @@ result_dict = {
     'JagalchiMarket': '자갈치시장',
     'IndependenceHall': '독립기념관',
     'Cheomseongdae': '첨성대',
-    'HomiPoint': '호미곶'
+    'HomiPoint': '호미곶',
+    "SamyangRanch":"삼양목장",
+    "Gangwonland":"강원랜드",
+    "WawooTemple":"와우정사",
+    "Panmunjeom":"판문점",
+    "BoseongGreenteaFarm":"보성녹차밭",
+    "SokchoExpoTower":"속초엑스포타워",
+    "GreenCityObservatory":"그린시티전망대",
+    "OdongIsletLightHouse":"오동도등대",
+    "JeondongChurch":"전동성당",
+    "GlassHouse":"글라스하우스",
+    "BangjuChurch":"방주교회",
+    "SeongisidolRanch":"성이시돌목장",
+    "BeopjuTemple":"법주사",
+    "SeokjoMaitreya":"석조미륵보살",
+    "HapdeokChurch":"합덕성당"
 }
+
 
 def map_name(model_result):
     map_name = result_dict[model_result]
