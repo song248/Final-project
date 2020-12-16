@@ -75,14 +75,24 @@
     
         {% block content %}
         <main role="main" class="inner cover">
-            <h1 class="cover-heading"><br><br>EZ Travel</h1>
-            <p class="lead">광고 속 그 장소가 궁금하다면?<br>
-                인스타 속 그 장소가 궁금하다면?<br>
-                사진을 업로드하고 해당 장소를 확인해보세요!<br><br></p>
+            <br><br>
             <p class="lead">
                 {% if request.user.is_authenticated %}
+                    <center>
+                    <table><tr>
+                        <td><img src="{% static 'img/paint_1.png' %}" width=350px, height=340px></td>
+                        <td style="width:15px;"></td>
+                        <td><img src="{% static 'img/paint_2.png' %}" width=350px, height=340px></td>
+                        <td style="width:15px;"></td>
+                        <td><img src="{% static 'img/paint_3.png' %}" width=350px, height=340px></td>
+                    </tr></table>
+                    </center><br><br><br>
                     <a href="{% url 'uimage' %}" class="btn btn-lg btn-secondary">확인하러 가기</a>
                 {% else %}
+                    <h1 class="cover-heading">EZ Travel</h1>
+                    <p class="lead">광고 속 그 장소가 궁금하다면?<br>
+                        인스타 속 그 장소가 궁금하다면?<br>
+                        사진을 업로드하고 해당 장소를 확인해보세요!<br></p>
                     <a onclick="alert('로그인이 필요한 서비스 입니다.');" style="cursor:pointer"
                         href="{% url 'account:login' %}" class="btn btn-lg btn-secondary">확인하러 가기</a>
                 {% endif %}

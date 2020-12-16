@@ -4,18 +4,19 @@ from efficientnet_pytorch import EfficientNet
 
 def model_load(): 
     global model_name,model,labels_map,MEAN_RGB,STDDEV_RGB,CROP_PADDING,image_size
+    
     # 모델 초기 정의 
-    model_name = 'efficientnet-b0'
-    model = EfficientNet.from_pretrained(model_name, num_classes=23)
+    model_name = 'efficientnet-b4'
+    model = EfficientNet.from_pretrained(model_name, num_classes=38)
 
     # 모델로드 
-    model.load_state_dict(torch.load('president_model_2.pt'))
-    # 모델 사용 선언 
+    model.load_state_dict(torch.load('president_model_b4_1210.pt'))
+    # 모델 사용 선언 1
     model.eval()
 
     # 클래스명 로드 (필수)
-    labels_map = json.load(open('labels_map_2.txt'))
-    labels_map = [labels_map[str(i)] for i in range(23)]
+    labels_map = json.load(open('labels_map_final.txt'))
+    labels_map = [labels_map[str(i)] for i in range(38)]
 
     # 텐서로 이미지 전처리 
     tf.executing_eagerly()
