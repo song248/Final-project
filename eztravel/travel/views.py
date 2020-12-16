@@ -5,7 +5,7 @@ from django.views.generic import View, TemplateView
 from .models import Post
 from .forms import UploadImageForm
 from django.core.files.storage import FileSystemStorage
-from travel import Using_Saved_Model
+from travel import Using_Saved_Model, recommendation
 import pandas as pd
 import random, json, pymysql
 pymysql.install_as_MySQLdb()
@@ -59,6 +59,7 @@ def uimage(request):
             img_path = 'C:/Users/songtg/Desktop/Final_project/eztravel/media/' + uploaded_file_url
             print(uploaded_file_url)
             result = Using_Saved_Model.execute_model(img_path)
+            result = map_name(result)
             print(result)
             file_url=fs.url(filename)
             context = {
@@ -80,7 +81,6 @@ def getmap(request):
         text=request.POST['result_data']
     print("status: ", text)
 
-
     # db에서 모든 table 정보를 list 형태로 가져옴
     db_info = get_db()
     
@@ -91,7 +91,7 @@ def getmap(request):
 
     # 맛집
     # restaurant_list = pd.read_csv('C:/Users/songtg/Desktop/Final_project/eztravel/data_file/new_restaurant.csv')
-    restaurant_list = pd.DataFrame(db_info[2])
+    restaurant_list = pd.DataFrame(db_info[3])
     restaurant_list.columns = ['name', 'menu', 'location', 'y', 'x', 'area', 'phone', 'time', 'star']
 
     # 포토존
@@ -100,14 +100,19 @@ def getmap(request):
     photozone_list.columns = ['name', 'location', 'y', 'x', 'area']
 
     # 명소의 좌표
-    attraction = attraction_list[attraction_list['name'] == map_name(text)]
+    attraction = attraction_list[attraction_list['name'] == text]
     location_x = attraction['x'].tolist()
     location_y = attraction['y'].tolist()
     attr = attraction['name'].tolist()[0]
     print('attr', attr)
+    # global rec_attr
+    # rec_attr = attr
+
     # 명소와 같은 지역을 찾는 것
     region = attraction['area'].tolist()[0]
     print('region', region)
+    # global rec_region
+    # rec_region = region
 
     # 명소와 가장 가까운 곳을 알려주기 위해
     r_sorted_list = []
@@ -116,6 +121,7 @@ def getmap(request):
         x = abs(location_x[0] - rest[4])
         r_sorted_list.append([x+y, rest.tolist()])
     r_sorted_list = sorted(r_sorted_list)
+
     new_r_list = []
     for i in r_sorted_list:
         new_r_list.append(i[1])
@@ -127,6 +133,7 @@ def getmap(request):
         x = abs(location_x[0] - rest[3])
         p_sorted_list.append([x+y, rest.tolist()])
     p_sorted_list = sorted(p_sorted_list)
+    
     new_p_list = []
     for i in p_sorted_list:
         new_p_list.append(i[1])
@@ -163,22 +170,56 @@ def getmap(request):
         'x_photo' : photo_info_x,
         'y_photo' : photo_info_y,
         'n_photo' : photo_info_name,
+        'attr': attr,
+        'region': region,
     }
 
     return render(request, 'travel/tmap.html', context)
 
+def recommend(request):
+    if request.method == 'POST':
+        print('post')
+        rec_region=request.POST['region_data']
+        rec_attr=request.POST['attr_data']
+    print("지역: ", rec_region)
+    print("명소: ", rec_attr)
+
+    rec_route = recommendation.recommend_place(rec_region, rec_attr)
+    rec_route.append(rec_attr)
+    print('추천장소: ', rec_route)
+
+    db = get_db()[2]
+    df = pd.DataFrame(db, columns=['name', 'location', 'y', 'x', 'area'])
+
+    y = []
+    x = []
+    for route in rec_route:
+        y.append(df[df['name'] == route]['y'].values.tolist()[0])
+        x.append(df[df['name'] == route]['x'].values.tolist()[0])
+    dot_y = y[0]
+    dot_x = x[0]
+    print('좌표:',dot_y, dot_x)
+    context = {
+        'rec_route': rec_route,
+        'y': y,
+        'x': x,
+        'dot_y': dot_y,
+        'dot_x': dot_x,
+    }
+
+    return render(request, 'travel/recommend.html', context)
 
 result_dict = {
-    'Skybay': '스카이베이',
+    'Skybay': '스카이베이 경포',
     'SunCruise': '썬크루즈리조트엔호텔',
-    ' Gwangandaegyo': '광안대교',
+    'Gwangandaegyo': '광안대교',
     '5.18Park': '5.18 기념공원',
     'GwanghwamunSquare': '광화문광장',
     'NamsanTower': '남산서울타워',
-    'DaejeonExpo': '엑스포과학공원',
+    'DaejeonExpo': '엑스포과학공원 한빛탑',
     'D_Ark': '디아크문화관',
     'LotteWorldTower': '롯데월드타워',
-    'MetasequoiaRoad': '하늘공원 메타세콰이어길',
+    'MetasequoiaRoad': '메타세콰이아가로수길',
     'Seokgulam': '석굴암',
     'Anapji': '안압지',
     'Yongdu.MtTower': '부산타워',
@@ -192,26 +233,26 @@ result_dict = {
     'IndependenceHall': '독립기념관',
     'Cheomseongdae': '첨성대',
     'HomiPoint': '호미곶',
-    "SamyangRanch":"삼양목장",
+    "SamyangRanch":"대관령 삼양 목장",
     "Gangwonland":"강원랜드",
     "WawooTemple":"와우정사",
     "Panmunjeom":"판문점",
     "BoseongGreenteaFarm":"보성녹차밭",
-    "SokchoExpoTower":"속초엑스포타워",
-    "GreenCityObservatory":"그린시티전망대",
-    "OdongIsletLightHouse":"오동도등대",
+    "SokchoExpoTower":"속초 엑스포 타워",
+    "GreenCityObservatory":"송산그린시티전망대",
+    "OdongIsletLightHouse":"여수오동도등대",
     "JeondongChurch":"전동성당",
     "GlassHouse":"글라스하우스",
     "BangjuChurch":"방주교회",
     "SeongisidolRanch":"성이시돌목장",
     "BeopjuTemple":"법주사",
     "SeokjoMaitreya":"석조미륵보살",
-    "HapdeokChurch":"합덕성당"
+    "HapdeokChurch":"천주교 합덕 성당"
 }
-
 
 def map_name(model_result):
     map_name = result_dict[model_result]
+    print(map_name)
     return map_name
 
 # def place_info(request):

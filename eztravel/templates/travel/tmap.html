@@ -4,9 +4,7 @@
 {% load static %}
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>simpleMap</title>
-<script
-	src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx0bc558171c774e4ba754afa0476b3077"></script>
+<script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx0bc558171c774e4ba754afa0476b3077"></script>
 <script	src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
 	// 맵 소환!!
@@ -25,7 +23,7 @@
 	var p_rest = '{{ p_rest }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').split(',')
 	var t_rest = '{{ t_rest }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').split(',')
 	var s_rest = JSON.parse('{{ s_rest }}');
-	var m_rest = '{{ m_rest }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').split(',')
+	var m_rest = '{{ m_rest }}'.replaceAll('&#x27;', '').replace('[','').replace(']', '').replaceAll('&amp;','&').split(',')
 	var new_n_rest=[];
 	for (var i=0;i<n_rest.length;i++) { new_n_rest.push(n_rest[i].trim()) } // 글자 앞 좌우 공백을 제거
 	n_rest = new_n_rest;
@@ -131,7 +129,7 @@
 			
 			console.log('최단 경로 경로 >>', shortest_route[0])
 			console.log('최단 경로 거리 >>', shortest_route[1])
-			var how_km = shortest_route[1].toFixed(4);
+			var how_km = shortest_route[1].toFixed(2);
 			var how_route = "";
 			var route_order = shortest_route[0][0];
 			for (var i=1;i<shortest_route[0].length;i++) {
@@ -217,25 +215,25 @@
 	function show_location_info() {
 		var first_link = "<a href='https://map.naver.com/v5/search/"+n_rest[0]+"'>"+n_rest[0]+"</a>"
 		$("#first_res_link").html(first_link);
-		$("#first_restaurant").text(' (★'+s_rest[0]+') '+' / 대표메뉴: '+m_rest[0]);
+		$("#first_restaurant").text(' (⭐'+s_rest[0]+') '+' / 대표메뉴: '+m_rest[0]);
 		$("#first_restaurant_time").text('영업시간: '+t_rest[0]);
 		$("#first_restaurant_tel").text('☎Tel: '+p_rest[0]);
 
 		var second_link = "<a href='https://map.naver.com/v5/search/"+n_rest[1]+"'>"+n_rest[1]+"</a>"
 		$("#second_res_link").html(second_link);
-		$("#second_restaurant").text(' (★'+s_rest[1]+') '+' / 대표메뉴: '+m_rest[1]);
+		$("#second_restaurant").text(' (⭐'+s_rest[1]+') '+' / 대표메뉴: '+m_rest[1]);
 		$("#second_restaurant_time").text('영업시간: '+t_rest[1]);
 		$("#second_restaurant_tel").text('☎Tel: '+p_rest[1]);
 
 		var third_link = "<a href='https://map.naver.com/v5/search/"+n_rest[2]+"'>"+n_rest[2]+"</a>"
 		$("#third_res_link").html(third_link);
-		$("#third_restaurant").text(' (★'+s_rest[2]+') '+' / 대표메뉴: '+m_rest[2]);
+		$("#third_restaurant").text(' (⭐'+s_rest[2]+') '+' / 대표메뉴: '+m_rest[2]);
 		$("#third_restaurant_time").text('영업시간: '+t_rest[2]);
 		$("#third_restaurant_tel").text('☎Tel: '+p_rest[2]);
 
 		var forth_link = "<a href='https://map.naver.com/v5/search/"+n_rest[3]+"'>"+n_rest[3]+"</a>"
 		$("#forth_res_link").html(forth_link);
-		$("#forth_restaurant").text(' (★'+s_rest[3]+') '+' / 대표메뉴: '+m_rest[3]);
+		$("#forth_restaurant").text(' (⭐'+s_rest[3]+') '+' / 대표메뉴: '+m_rest[3]);
 		$("#forth_restaurant_time").text('영업시간: '+t_rest[3]);
 		$("#forth_restaurant_tel").text('☎Tel: '+p_rest[3]);
 
@@ -274,7 +272,7 @@
 	function moveCenter() {
 		var newCenter = new Tmapv2.LatLng(y, x)
 		map.setCenter(newCenter);
-		map.setZoom(11); // 확대 크기
+		map.setZoom(12); // 확대 크기
 	}
 
 	// 맛집의 좌표를 찍어줌
@@ -417,14 +415,25 @@
 </script>
 </head>
 
+<script>
+	region = '{{region}}';
+    attraction = '{{attr}}';
+    console.log(region);
+    console.log(region);
+    $('#region_data').val(region);
+    $('#attr_data').val(attraction);
+</script>
+
 <body onload="initTmap()"> <!--함수 호출-->
 	<div id="first_table">
 		<center><table border='0' bgcolor="#444444">
-			<tr><td rowspan="5">
-				<div id="map_div" style="color:black;"></div></td>
+			<tr><td rowspan="4" style="width:900px; height:800px;">
+					<center>
+						<div id="map_div" style="color:black;"></div></td>
+					</center>
 				<td style="width:20px;"></td>
-				<td style="width:430px;">
-					<p><h3>&nbsp맛집</h3></p>
+				<td style="width:400px; height:460px;">
+					<p><span style="font-size:150%;">&nbsp맛집&nbsp🍽</span></p>
 					<div>
 						<span><input type="checkbox" name="restau" value="r_first" style="white-space:nowrap;">
 						<span id="first_res_link"></span>
@@ -454,7 +463,7 @@
 			<tr>
 				<td></td>
 				<td>
-					<p><h3>&nbsp포토스팟</h3></p>
+					<p><span style="font-size:150%;">&nbsp포토존&nbsp📷</span></p>
 					<div>
 						<span><input type="checkbox" name="photo" value="p_first" style="white-space:nowrap;">
 						<span id="first_photozone"></span>
@@ -481,9 +490,14 @@
 					<span>총 길이:&nbsp</span><span id="how_km"></span><span>&nbsp km</span><br>
 					<span>최단 경로:&nbsp</span><span id="how_route"></span><span>&nbsp 입니다.</span><br><br>
 					<center>
-					<a href="{% url 'uimage' %}" style="width:250px; font-weight:bold;" 
-						class="btn btn-lg btn-primary btn-block btn-login font-weight-bold mb-2">다른 사진 업로드</a>
-					<a href="#" class="btn btn-lg btn-info btn-block btn-login text-uppercase font-weight-bold mb-2" style="width:250px;">주변정보</a>
+						<a href="{% url 'uimage' %}" style="width:250px; font-weight:bold;" 
+							class="btn btn-lg btn-primary btn-block btn-login font-weight-bold mb-2">다른 사진 업로드</a>
+						<form method="post" action="{% url 'recommend'%}" id="create">
+							{% csrf_token %}
+							<input type="hidden" name="region_data" value="{{region}}" id="region_data">
+							<input type="hidden" name="attr_data" value="{{attr}}" id="attr_data">
+							<input type="submit" class="btn btn-lg btn-info btn-block btn-login text-uppercase font-weight-bold mb-2" style="width:250px;" value="추천 관광코스">
+						</form>
 					</center>
 				</td>
 			</tr>

@@ -53,12 +53,12 @@
 </script>
 
 <script>
-    $('#js_data_input').val(place)
+    $('#js_data_input').val(place);
 </script>
 
 <div class="typography-line" style="padding-left:0; display:None;" id="loading">
-    <h2>위치 확인중</h2><br>
-    <img src="{% static 'img/loading_3.gif' %}">
+    <h1>분&nbsp&nbsp석&nbsp&nbsp중</h1>
+    <img src="{% static 'img/loading_4.gif' %}">
 </div>
 
 <div id="showing" style="display:None;">
@@ -69,12 +69,20 @@
         <span>(으)로 예측됩니다.</span></h3></p>
 </div>
 
-<div id="movetonext" style="display:None;">
-    <form method="post" action="{% url 'getmap'%}" id="create">
-        {% csrf_token %}
-        <input type="hidden" name="result_data" value="" id="js_data_input">
-        <input type="submit" name="submit" class="btn btn-lg btn-secondary" value="지도에서 확인하기">
-    </form>
-</div>
+
+<div id="movetonext" style="display:None;"><center>
+    <table><tr>
+        <td>
+        <a href="{% url 'uimage' %}" style="width:200px; font-weight:bold;" 
+            class="btn btn-lg btn-primary btn-block font-weight-bold mb-2">다른 사진 업로드</a></td>
+        <td>
+        <form method="post" action="{% url 'getmap'%}" id="create">
+            {% csrf_token %}
+            <input type="hidden" name="result_data" value="" id="js_data_input">
+            <input type="submit" name="submit" class="btn-lg btn-info btn-block font-weight-bold mb-2" 
+                value="지도에서 확인하기">
+        </form></td>
+    </tr></table>
+</center></div>
 
 {% endblock%}

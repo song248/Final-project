@@ -22,27 +22,17 @@ from django.conf.urls import url
 from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
-    # url(r'^admin/', admin.site.urls),
-    # url(r'^$', views.index, name = 'index'),
-    # url(r'^howto/', views.howto, name='howto'),
-
     path('admin/', admin.site.urls),
     path('', views.index, name = 'index'),
     path('main/', views.mainview.as_view(), name='main'),
     path('howto/', views.howto, name='howto'),
     path('know/', views.know, name='know'),
-    # path('place_info/', views.place_info, name='place_info'),
-    # path('login/', user.views.LoginView, name='login'),
-    # path('login/', include('user.urls', 'login'), name='login'),
     path('login/', include('account.urls', 'login')),
     path('logout/', LogoutView.as_view(), name='logout'),
+
     path('getmap/', views.getmap, name='getmap'),
-    # path('know/post/<int:id>', travel.views.know_show)
+    path('recommend/', views.recommend, name='recommend'),
     url(r'^post/(?P<pk>\d+)/', views.know_show), 
     url(r'^uimage/$', views.uimage, name='uimage'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
 
-"""
-beforeSend
-complete
-"""
