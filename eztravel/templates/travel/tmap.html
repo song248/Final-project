@@ -78,8 +78,8 @@
             zoom: 8, // 지도 확대
             zoomControl:true,
             scrollwheel:true,
-            width: "800px", // map의 width 설정
-            height: "700px" // map의 height 설정
+            width: "750px", // map의 width 설정
+            height: "650px" // map의 height 설정
          });
 		addMarker(); // 명소 마커 찍는 함수
 		moveCenter(); // 좌표를 중심으로 지도 이동
@@ -179,6 +179,7 @@
 								drawLine(drawInfoArr, i);
 							}
 						}
+						$("#roro").show();
 						$("#region_info").show();
 						$("return_upload").show();
 						$("#btn_select").hide();
@@ -427,13 +428,22 @@
 <body onload="initTmap()"> <!--함수 호출-->
 	<div id="first_table">
 		<center><table border='0' bgcolor="#444444">
-			<tr><td rowspan="4" style="width:900px; height:800px;">
+			<tr><td rowspan="5" style="width:880px; height:820px;">
 					<center>
-						<div id="map_div" style="color:black;"></div></td>
+						<div id="map_div" style="color:black;"></div>
+						<div id="roro" style="display:None;"><br>
+							<p style="font-size:130%;">
+								<span>🔸최단 경로:&nbsp</span><span id="how_route"></span><span>&nbsp 입니다.</span></p>
+							<p style="font-size:130%;">
+								<span>🔹총 길이:&nbsp</span><span id="how_km"></span><span>&nbsp km</span></p>
+						</div>
 					</center>
-				<td style="width:20px;"></td>
+				</td>
+				<td style="height:30px;"></td>
+			</tr>
+			<tr>
 				<td style="width:400px; height:460px;">
-					<p><span style="font-size:150%;">&nbsp맛집&nbsp🍽</span></p>
+					<p><span style="font-size:140%;">&nbsp맛집&nbsp🍽</span></p>
 					<div>
 						<span><input type="checkbox" name="restau" value="r_first" style="white-space:nowrap;">
 						<span id="first_res_link"></span>
@@ -461,9 +471,8 @@
 				</td>
 			</tr>
 			<tr>
-				<td></td>
-				<td>
-					<p><span style="font-size:150%;">&nbsp포토존&nbsp📷</span></p>
+				<td style="height: 130px;">
+					<p><span style="font-size:140%;">&nbsp포토존&nbsp📷</span></p>
 					<div>
 						<span><input type="checkbox" name="photo" value="p_first" style="white-space:nowrap;">
 						<span id="first_photozone"></span>
@@ -479,16 +488,12 @@
 				</td>
 			</tr>
 			<tr>
-				<td></td>
 				<td><center>
 					<button id="btn_select" style="width:250px; font-weight:bold;" class="btn btn-lg btn-secondary" onclick="getValue()">경로 생성</button>
 		   		</center></td>
 			</tr>
 			<tr>
-				<td></td>
 				<td id="region_info" style="display:None;">
-					<span>총 길이:&nbsp</span><span id="how_km"></span><span>&nbsp km</span><br>
-					<span>최단 경로:&nbsp</span><span id="how_route"></span><span>&nbsp 입니다.</span><br><br>
 					<center>
 						<a href="{% url 'uimage' %}" style="width:250px; font-weight:bold;" 
 							class="btn btn-lg btn-primary btn-block btn-login font-weight-bold mb-2">다른 사진 업로드</a>

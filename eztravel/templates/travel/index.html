@@ -80,14 +80,14 @@
                 {% if request.user.is_authenticated %}
                     <center>
                     <table><tr>
-                        <td><img src="{% static 'img/paint_1.png' %}" width=350px, height=340px></td>
-                        <td style="width:15px;"></td>
-                        <td><img src="{% static 'img/paint_2.png' %}" width=350px, height=340px></td>
-                        <td style="width:15px;"></td>
-                        <td><img src="{% static 'img/paint_3.png' %}" width=350px, height=340px></td>
+                        <td><a href="{% url 'uimage' %}"><img src="{% static 'img/paint_1.png' %}" width=380px, height=400px><a></td>
+                        <td style="width:40px;"></td>
+                        <td><img src="{% static 'img/paint_2.png' %}" width=380px, height=400px></td>
+                        <td style="width:40px;"></td>
+                        <td><img src="{% static 'img/paint_3.png' %}" width=380px, height=400px></td>
                     </tr></table>
                     </center><br><br><br>
-                    <a href="{% url 'uimage' %}" class="btn btn-lg btn-secondary">확인하러 가기</a>
+                    {% comment %} <a href="{% url 'uimage' %}" class="btn btn-lg btn-secondary">확인하러 가기</a> {% endcomment %}
                 {% else %}
                     <h1 class="cover-heading">EZ Travel</h1>
                     <p class="lead">광고 속 그 장소가 궁금하다면?<br>

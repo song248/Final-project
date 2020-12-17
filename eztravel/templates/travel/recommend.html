@@ -64,7 +64,7 @@
 			how_route = route_order
             $('#how_route').html(how_route)
 
-            $('#how_km').html("<span>&nbsp&nbsp총 거리: &nbsp"+shortest_route[1].toFixed(2)+"km</span>")
+            $('#how_km').html("<span>&nbsp&nbsp🔹총 거리: &nbsp"+shortest_route[1].toFixed(2)+"km</span>")
 
             // 선 그려주기
 			for (var i=0;i<shortest_route[0].length-1;i++) {
@@ -259,13 +259,13 @@
                 <td style="width:250px;">
                     <center>
                         <p><br><span style="font-size:150%;">추천 관광코스<span style="font-size:180%;">🚙</span></p><br>
-                        <p id='how_route'></p>
+                        <p style="font-size:130%;" id='how_route'></p>
                     </center>    
                 </td>
             </tr>
             <tr>
-                <td><center>
-                    <p id='how_km'></p>
+                <td><center><br><br>
+                    <p style="font-size:130%;" id='how_km'></p>
                 </center></td>
             </tr>
             <tr>

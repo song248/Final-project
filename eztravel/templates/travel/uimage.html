@@ -2,34 +2,88 @@
 
 {% block content %}
 {% load static %}
+
+<style>
+    .inputfile:focus + label,
+    .inputfile + label:hover {
+        background-color: red;
+    }
+    .inputfile + label {
+        cursor: pointer; /* "hand" cursor */
+    }
+</style>
+
 <center>
 <form id="myForm" method="POST" class="post-form" enctype="multipart/form-data">
     <div style="background-image: url(static/img/bgcolor.png); 
                 background-size: 850px 500px; width:850px; height:500px;">
         {% csrf_token %}
-        <table style="text-align: center;">
-
-            <tr><td colspan="2" style="height:150px;"></td></tr>
+        <table style="text-align: center;" border='0'>
+            <tr><td colspan="2" style="height:110px;"></td></tr>
             <tr>
-                <td colspan="2"><h3><span>사진 속 장소가 궁금한 이미지를 업로드 해주세요</h3></td>
+                <td colspan="2"><b><span style="font-size:200%;">궁금한 장소의 사진을 업로드 해주세요</b></td>
             </tr>
             <tr>
-                <td colspan="2"><p></p></td>
+                <td style="height:25px;"></td>
             </tr>
-            <tr><td colspan="2" style="height:10px;"></td></tr>
             <tr>
-                <td style="width:130px;"></td>
-                <td><div style="font-size:160%;">{{ form.as_p }}</div></td>
+                <!-- <td><div style="font-size:160%;">{{ form.as_p }}</div></td> -->
+                <!-- accpet는 파일 확장자라는 것 같다. 안써도 돌아가기는 함 -->
+                <td>
+                    <input type="file" name="image" accept="image/*" id="id_image" onchange="javascript:document.getElementById('submit').submit();" hidden />
+                    <label for="id_image"><img src="{% static 'img/upload.png' %}" style="width: 500px; height: 220px;"></img></label>
+                </td>
             </tr>
-            <tr><td colspan="2" style="height:15px;"></td></tr>
+            <!-- <tr><td colspan="2" style="height:15px;"></td></tr>
             <tr>
                 <td colspan="2"><center>
                     <button class="btn btn-lg btn-primary btn-block font-weight-bold mb-2"
-                        id="submit" type="submit"  style="font-size:130%; width:200px;">업로드하기</button></center>
-            </td></tr>
+                        id="submit" type="submit" style="font-size:130%; width:200px;">업로드하기</button></center>
+                </td>
+            </tr> -->
         </table>
     </div>
 </form>
+
+<script>
+    document.getElementById('id_image').onchange = function(e) {
+        e.preventDefault();
+        var form = $("#myForm")[0];
+        var formData = new FormData(form);
+        $.ajax({
+            cache : false,
+            type: "POST",
+            url: "uimage/",
+            processData: false,
+            contentType: false,
+            data : formData,
+            success:function(data){
+                place = data["result"]
+                console.log(place)
+                im_file = data["file_url"]
+                console.log(im_file)
+                var show_img = "<img src='"+im_file+"'width=500px, height=300px>"
+                $("#myForm").hide();
+                $('#predict').html(place);
+                $('#file_place').html(show_img);
+                $('#js_data_input').val(place)
+            },
+            beforeSend:function(){
+                console.log('beforesend')
+                $("#loading").show();
+                $("#myForm").hide();
+            },
+            complete:function(){
+                console.log('complete')
+                $("#showing").show();
+                $("#movetonext").show();
+                $("#loading").hide();
+            },
+        });
+        return place
+    };
+
+</script>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript">
@@ -37,7 +91,7 @@
     var im_file;
     $("#submit").click(function(e) {
         e.preventDefault();
-        var form = $("#myForm")[0]; 
+        var form = $("#myForm")[0];
         var formData = new FormData(form);
         $.ajax({
             cache : false,
@@ -83,37 +137,36 @@
 </div>
 
 <div id="showing" style="display:None;">
-    <div style="width:800px; height:520px; background-color: #444444;"><br>
+    <br>
+    <div style="width:830px; height:550px; background-color: #444444;"><br><br>
         <div style="background-image: url(static/img/bgcolor.png); 
                         background-size: 545px 325px; width:545px; height:325px;">
-            <div style="height:14px;"></div>
+            <div style="height:13px;"></div>
             <div id="file_place"></div>
         </div>
         <div style="height:15px;"></div>
-        <p style="font-size:110%;"><span>사진 속 장소는&nbsp</span>
-            <span style="font-size:160%;" id="predict">
+        <p style="font-size:130%;"><span>사진 속 장소는&nbsp</span>
+            <span style="font-size:180%;" id="predict">
             </span>
-            <span>(으)로 예측됩니다.</span></p><br>
+            <span>(으)로 예측됩니다.</span></p>
     <div>
 </div>
 <div id="movetonext" style="display:None;"><center>
     <table><tr>
         <td>
-        <a href="{% url 'uimage' %}" style="width:200px; font-weight:bold;" 
-            class="btn btn-lg btn-primary btn-block font-weight-bold mb-2">다른 사진 업로드</a></td>
+            <a href="{% url 'uimage' %}" style="width:200px; font-weight:bold;" 
+                class="btn btn-lg btn-primary btn-block font-weight-bold mb-2">다른 사진 업로드</a></td>
         <td style="width:30px;"></td>
         <td>
-        <form method="post" action="{% url 'getmap'%}" id="create">
-            {% csrf_token %}
-            <input type="hidden" name="result_data" value="" id="js_data_input">
-            <input type="submit" name="submit" class="btn-lg btn-info btn-block font-weight-bold mb-2" 
-                value="지도에서 확인하기">
-        </form></td>
+            <form method="post" action="{% url 'getmap'%}" id="create">
+                {% csrf_token %}
+                <input type="hidden" name="result_data" value="" id="js_data_input">
+                <input type="submit" name="submit" class="btn-lg btn-info btn-block font-weight-bold mb-2" 
+                    value="지도에서 확인하기">
+            </form>
+        </td>
     </tr></table>
 </center></div>
-
-
-
 
 </center>
 

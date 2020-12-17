@@ -213,7 +213,7 @@ result_dict = {
     'Skybay': '스카이베이 경포',
     'SunCruise': '썬크루즈리조트엔호텔',
     'Gwangandaegyo': '광안대교',
-    '5.18Park': '5.18 기념공원',
+    '5.18Park': '국립5.18민주묘지',
     'GwanghwamunSquare': '광화문광장',
     'NamsanTower': '남산서울타워',
     'DaejeonExpo': '엑스포과학공원 한빛탑',
