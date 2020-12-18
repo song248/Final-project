@@ -26,6 +26,20 @@
     <meta name="msapplication-config" content="/docs/4.5/assets/img/favicons/browserconfig.xml">
     <meta name="theme-color" content="#563d7c">
 
+    <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        $().ready(function () {
+            $("#alertStart").click(function () {
+                Swal.fire({
+                    icon: 'warning',
+                    title: '로그인이 되어있지 않습니다.',
+                    text: '로그인이 필요한 서비스입니다.',
+                });
+            });
+        });
+    </script>
+
     <style>
         
         body{
@@ -47,6 +61,7 @@
                 font-size: 3.5rem;
             }
         }
+        
     </style>
 
     <!-- Custom styles for this template -->
@@ -87,14 +102,13 @@
                         <td><img src="{% static 'img/paint_3.png' %}" width=380px, height=400px></td>
                     </tr></table>
                     </center><br><br><br>
-                    {% comment %} <a href="{% url 'uimage' %}" class="btn btn-lg btn-secondary">확인하러 가기</a> {% endcomment %}
                 {% else %}
                     <h1 class="cover-heading">EZ Travel</h1>
                     <p class="lead">광고 속 그 장소가 궁금하다면?<br>
                         인스타 속 그 장소가 궁금하다면?<br>
-                        사진을 업로드하고 해당 장소를 확인해보세요!<br></p>
-                    <a onclick="alert('로그인이 필요한 서비스 입니다.');" style="cursor:pointer"
-                        href="{% url 'account:login' %}" class="btn btn-lg btn-secondary">확인하러 가기</a>
+                        사진을 업로드하고 해당 장소를 확인해보세요!<br><br></p>
+                    <a onclick="" style="cursor:pointer" id="alertStart"
+                        class="btn btn-lg btn-secondary">확인하러 가기</a>
                 {% endif %}
             </p>
         </main>

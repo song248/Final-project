@@ -7,7 +7,8 @@
     <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx0bc558171c774e4ba754afa0476b3077"></script>
     <script	src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script type="text/javascript">
-    
+        //$("#loading").show();
+        //$("#first_table").hide();
         var map;
         var markers = [];
 
@@ -106,7 +107,6 @@
                                             
 									// 배열에 담기
                                     drawInfoArr.push(convertChange);
-                                    
 								}
 								drawLine(drawInfoArr, i);
                                 sleep(500);
@@ -118,6 +118,12 @@
 					},
 				});
 			}
+            //iwantyou()
+        }
+
+        function iwantyou(){
+            $("#loading").hide();
+            $("#first_table").show();
         }
 
         // 시간이여 멈춰라!!
@@ -125,7 +131,6 @@
             ts1 = new Date().getTime() + ms;
             do ts2 = new Date().getTime(); while (ts2<ts1);
         }
-
             
         function addMarker(rec_route) {
             for (var i=0;i<rec_route.length;i++) {
@@ -241,12 +246,19 @@
             });
             resultdrawArr.push(polyline_);
         }
+        
     </script>
 </head>
 
 <body onload="initTmap()">
+    
+    <div class="typography-line" style="padding-left:0; display:None;" id="loading">
+        <h1>추천 경로 생성중</h1>
+        <img src="{% static 'img/loading_4.gif' %}">
+    </div>
+
     <div id="first_table">
-		<center><table border='0' bgcolor="#444444">
+		<center><table border='0'>
             <tr>
                 <td rowspan="4">
                     <div id="map_div" style="color:black;"></div>
@@ -255,7 +267,7 @@
                     <span></span>
                 </td>
             </tr>
-            <tr>
+            <tr bgcolor="#444444">
                 <td style="width:250px;">
                     <center>
                         <p><br><span style="font-size:150%;">추천 관광코스<span style="font-size:180%;">🚙</span></p><br>
@@ -263,16 +275,17 @@
                     </center>    
                 </td>
             </tr>
-            <tr>
+            <tr bgcolor="#444444">
                 <td><center><br><br>
                     <p style="font-size:130%;" id='how_km'></p>
                 </center></td>
             </tr>
-            <tr>
-                <td style="height: 380px;">
+            <tr  bgcolor="#444444">
+                <td style="height: 300px;">
                 <span></span></td>
             </tr>
         </table></center>
     </div>
+
 </body>
 {% endblock %}
