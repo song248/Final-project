@@ -1,0 +1,173 @@
+{% extends 'travel/index.html' %}
+
+{% block content %}
+{% load static %}
+<style>
+
+.button {
+	background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent;
+    border: none;
+    font-weight:bold;
+    color:#121212;
+}
+
+.button:hover {
+	background-color: #fff;
+	border-color: #59b1eb;
+	color: #a9bbff;
+}
+
+</style>
+<body><center>
+<div style="border-radius: 2em; height:660px; width:550px; background-color:#ababab"><br>
+<h2><원하는 지역을 선택하세요></h2><br>
+    <center><table border='0' style="width:500px; height:550px" background="{% static 'img/bando.png' %}" >
+        <tr align ="center"><td></td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="경기" id="region_data">
+                    <input type="hidden" name="attr_data" value="판문점" id="attr_data">
+                    <input type="submit" class="button" value="경기">
+                </form>
+            </td>
+            <td></td><td></td><td></td>
+        </tr>
+        <tr align ="center">
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="인천" id="region_data">
+                    <input type="hidden" name="attr_data" value="인천차이나타운" id="attr_data">
+                    <input type="submit" class="button" value="인천">
+                </form>
+            </td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="서울" id="region_data">
+                    <input type="hidden" name="attr_data" value="광화문광장" id="attr_data">
+                    <input type="submit" class="button" value="서울">
+                </form>
+            </td><td></td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="강원" id="region_data">
+                    <input type="hidden" name="attr_data" value="썬크루즈리조트엔호텔" id="attr_data">
+                    <input type="submit" class="button" value="강원">
+                </form>
+            </td>
+            <td></td>
+        </tr>
+        <tr align ="center">
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="충남" id="region_data">
+                    <input type="hidden" name="attr_data" value="석조미륵보살" id="attr_data">
+                    <input type="submit" class="button" value="충남">
+                </form>
+            </td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="대전" id="region_data">
+                    <input type="hidden" name="attr_data" value="엑스포과학공원 한빛탑" id="attr_data">
+                    <input type="submit" class="button" value="대전">
+                </form>
+            </td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="충북" id="region_data">
+                    <input type="hidden" name="attr_data" value="법주사" id="attr_data">
+                    <input type="submit" class="button" value="충북">
+                </form>
+            </td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="경북" id="region_data">
+                    <input type="hidden" name="attr_data" value="안압지" id="attr_data">
+                    <input type="submit" class="button" value="경북">
+                </form>
+            </td><td></td>
+        </tr>
+        <tr align ="center"><td></td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="전북" id="region_data">
+                    <input type="hidden" name="attr_data" value="전동성당" id="attr_data">
+                    <input type="submit" class="button" value="전북">
+                </form>
+            </td>
+            <td></td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="대구" id="region_data">
+                    <input type="hidden" name="attr_data" value="디아크문화관" id="attr_data">
+                    <input type="submit" class="button" value="대구">
+                </form>
+            </td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="울산" id="region_data">
+                    <input type="hidden" name="attr_data" value="소망우체통" id="attr_data">
+                    <input type="submit" class="button" value="울산">
+                </form>
+            </td>
+        </tr>
+        <tr align ="center"><td></td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="광주" id="region_data">
+                    <input type="hidden" name="attr_data" value="국립5.18민주묘지" id="attr_data">
+                    <input type="submit" class="button" value="광주">
+                </form>
+            </td>
+            <td>
+                <input type="submit" class="button" style="font-size:150%;" value="경남">
+            </td>
+            <td></td>
+            <td><form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="부산" id="region_data">
+                    <input type="hidden" name="attr_data" value="자갈치시장" id="attr_data">
+                    <input type="submit" class="button" value="부산">
+                </form>
+            </td>
+        </tr>
+        
+        <tr align ="center"><td></td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="전남" id="region_data">
+                    <input type="hidden" name="attr_data" value="보성녹차밭" id="attr_data">
+                    <input type="submit" class="button" value="전남">
+                </form>
+            </td>
+            <td></td><td></td><td></td>
+        </tr>
+        <tr align ="center"><td></td>
+            <td>
+                <form method="post" action="{% url 'recommend'%}" id="create" style="font-size:150%;">
+                    {% csrf_token %}
+                    <input type="hidden" name="region_data" value="제주" id="region_data">
+                    <input type="hidden" name="attr_data" value="방주교회" id="attr_data">
+                    <input type="submit" class="button" value="제주">
+                </form>
+            </td><td></td><td></td><td></td>
+        </tr>
+    </table></center>
+</div></center>
+</body>
+
+{% endblock%}

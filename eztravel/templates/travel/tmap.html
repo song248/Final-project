@@ -82,117 +82,129 @@
             height: "650px" // map의 height 설정
          });
 		addMarker(); // 명소 마커 찍는 함수
-		moveCenter(); // 좌표를 중심으로 지도 이동
+		moveCenter(12); // 좌표를 중심으로 지도 이동
 
 		// 버튼 클릭시 활성화
 		$('#btn_select').click(function(e){
-			e.preventDefault();
-			checkbox_list = check_to_name() // checklist에서 나온 것을 저장
-			// console.log('checkbox_list', checkbox_list)
+         $('#first_table').hide(function(){
+            $('#loading').show(function(){
+               e.preventDefault();
+               checkbox_list = check_to_name() // checklist에서 나온 것을 저장
+               // console.log('checkbox_list', checkbox_list)
+               // addCheckMarkers(checkbox_list);
+               
 
-			addCheckMarkers(checkbox_list);
+               points = [name, ...checkbox_list]
+               // console.log(points)
 
-			points = [name, ...checkbox_list]
-			// console.log(points)
+               // 생성할 수 있는 모든 경로의 순열
+               var point_route = getPermutations(points, points.length)
+               console.log('이어질 수 있는 모든 경우 >> ', point_route)
 
-			// 생성할 수 있는 모든 경로의 순열
-			var point_route = getPermutations(points, points.length)
-			console.log('이어질 수 있는 모든 경우 >> ', point_route)
+               get_distance()
 
-			get_distance()
+               console.log('거리 사전 complete >> ', p_to_p) // 거리 사전 완성 확인
 
-			console.log('거리 사전 complete >> ', p_to_p) // 거리 사전 완성 확인
+               var point_route_list = []; // 경로당 거리
 
-			var point_route_list = []; // 경로당 거리
+               for (var i=0; i<point_route.length;i++) {
+                  var len_point_routes = 0;
 
-			for (var i=0; i<point_route.length;i++) {
-				var len_point_routes = 0;
+                  for (var j=0; j<point_route[i].length-1;j++) {
+                     // console.log(point_route[i][j], point_route[i][j+1])
+                     var atob = point_route[i][j] +','+ point_route[i][j+1]
+                     var len_point_route = p_to_p[atob] // 사전에서 거리 검색
+                     // console.log('사전[', atob ,'] =', len_point_route)
+                     len_point_routes += len_point_route
+                  }
+                  point_route_list.push([point_route[i], len_point_routes]) // 경로순서이름, 거리합
+               }
 
-				for (var j=0; j<point_route[i].length-1;j++) {
-					// console.log(point_route[i][j], point_route[i][j+1])
-					var atob = point_route[i][j] +','+ point_route[i][j+1]
-					var len_point_route = p_to_p[atob] // 사전에서 거리 검색
-					// console.log('사전[', atob ,'] =', len_point_route)
-					len_point_routes += len_point_route
-				}
-				point_route_list.push([point_route[i], len_point_routes]) // 경로순서이름, 거리합
-			}
+               // 최단 거리 찾기 
+               var shortest_route=['', 1000000000000000000]; // 저장하기 용
+               for (var i in point_route_list) {
+                  if (point_route_list[i][1] < shortest_route[1]) {
+                     console.log('point_route_list[i]', point_route_list[i])
+                     shortest_route = point_route_list[i]
+                  }
+                  }
+                  removeMarkers()
+               addCheckMarkers(shortest_route[0])
+               console.log('최단 경로 경로 >>', shortest_route[0])
+               console.log('최단 경로 거리 >>', shortest_route[1])
+               var how_km = shortest_route[1].toFixed(2);
+               var how_route = "";
+               var route_order = shortest_route[0][0];
+               for (var i=1;i<shortest_route[0].length;i++) {
+                  route_order += ' → '
+                  route_order += shortest_route[0][i]
+               }
+               how_route = route_order
 
-			// 최단 거리 찾기 
-			var shortest_route=['', 1000000000000000000]; // 저장하기 용
-			for (var i in point_route_list) {
-				if (point_route_list[i][1] < shortest_route[1]) {
-					console.log('point_route_list[i]', point_route_list[i])
-					shortest_route = point_route_list[i]
-				}
-			}
+               $("#first_table").show(function() {
+                  // 선 그려주기
+                  for (var i=0;i<shortest_route[0].length-1;i++) {
+                     var drawInfoArr = [];
+                     $.ajax({
+                        type : "POST",
+                        url : "https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result",
+                        async : false,
+                        data : {
+                           "appKey" : "l7xx0bc558171c774e4ba754afa0476b3077",
+                           "startX" : String(location_dict[shortest_route[0][i]][0]),
+                           "startY" : String(location_dict[shortest_route[0][i]][1]),
+                           "endX" : String(location_dict[shortest_route[0][i+1]][0]),
+                           "endY" : String(location_dict[shortest_route[0][i+1]][1]),
+                           "reqCoordType" : "WGS84GEO",
+                           "resCoordType" : "EPSG3857",
+                        },
+                        success : function(response) {
+                           var resultData = response.features;
+
+                           for (var rd in resultData) { 
+                              var geometry = resultData[rd].geometry;
+                              
+                              if (geometry.type == "LineString") {
+                                 for ( var j in geometry.coordinates) {
+                                    // 경로들의 결과값들을 포인트 객체로 변환 
+                                    var latlng = new Tmapv2.Point(
+                                          geometry.coordinates[j][0],
+                                          geometry.coordinates[j][1]);
+                                    // 포인트 객체를 받아 좌표값으로 변환
+                                    var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(
+                                          latlng);
+                                    // 포인트객체의 정보로 좌표값 변환 객체로 저장
+                                    var convertChange = new Tmapv2.LatLng(
+                                          convertPoint._lat,
+                                          convertPoint._lng);
+                                    // 배열에 담기
+                                    drawInfoArr.push(convertChange);
+                                 }
+                                 drawLine(drawInfoArr, i);
+                              }
+						   }
+						   
+						   $("#loading").hide();
+                           $("#roro").show();
+                           $("#region_info").show();
+                           $("return_upload").show();
+                           $("#btn_select").hide();
+                           $('#how_km').html(how_km);
+                           $('#how_route').html(how_route);
+                           $("show_km").show();
+						   moveCenter(14);
+                        },
+                        beforeSend:function(){
+                           console.log('beforesend')
+                        },
+                     }); // ---------- 여기 까지가 ajax
+                     sleep(500);
+                  }
+               });
+               
+            })
+         })
 			
-			console.log('최단 경로 경로 >>', shortest_route[0])
-			console.log('최단 경로 거리 >>', shortest_route[1])
-			var how_km = shortest_route[1].toFixed(2);
-			var how_route = "";
-			var route_order = shortest_route[0][0];
-			for (var i=1;i<shortest_route[0].length;i++) {
-				route_order += ' → '
-				route_order += shortest_route[0][i]
-			}
-			how_route = route_order
-
-			// 선 그려주기
-			for (var i=0;i<shortest_route[0].length-1;i++) {
-				var drawInfoArr = [];
-				$.ajax({
-					type : "POST",
-					url : "https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result",
-					async : false,
-					data : {
-						"appKey" : "l7xx0bc558171c774e4ba754afa0476b3077",
-						"startX" : String(location_dict[shortest_route[0][i]][0]),
-						"startY" : String(location_dict[shortest_route[0][i]][1]),
-						"endX" : String(location_dict[shortest_route[0][i+1]][0]),
-						"endY" : String(location_dict[shortest_route[0][i+1]][1]),
-						"reqCoordType" : "WGS84GEO",
-						"resCoordType" : "EPSG3857",
-					},
-					success : function(response) {
-						var resultData = response.features;
-
-						for (var rd in resultData) { 
-							var geometry = resultData[rd].geometry;
-							
-							if (geometry.type == "LineString") {
-								for ( var j in geometry.coordinates) {
-									// 경로들의 결과값들을 포인트 객체로 변환 
-									var latlng = new Tmapv2.Point(
-											geometry.coordinates[j][0],
-											geometry.coordinates[j][1]);
-									// 포인트 객체를 받아 좌표값으로 변환
-									var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(
-											latlng);
-									// 포인트객체의 정보로 좌표값 변환 객체로 저장
-									var convertChange = new Tmapv2.LatLng(
-											convertPoint._lat,
-											convertPoint._lng);
-									// 배열에 담기
-									drawInfoArr.push(convertChange);
-								}
-								drawLine(drawInfoArr, i);
-							}
-						}
-						$("#roro").show();
-						$("#region_info").show();
-						$("return_upload").show();
-						$("#btn_select").hide();
-						$('#how_km').html(how_km);
-						$('#how_route').html(how_route);
-						$("show_km").show();
-					},
-					beforeSend:function(){
-						console.log('beforesend')
-					},
-				}); // ---------- 여기 까지가 ajax
-				sleep(500);
-			}
 		}); // ------ 여기까지가 버튼
 	}
 
@@ -270,10 +282,10 @@
 	}
 
 	// 명소 마커를 기준으로 중심점 이동
-	function moveCenter() {
+	function moveCenter(zoom) {
 		var newCenter = new Tmapv2.LatLng(y, x)
 		map.setCenter(newCenter);
-		map.setZoom(12); // 확대 크기
+		map.setZoom(zoom); // 확대 크기
 	}
 
 	// 맛집의 좌표를 찍어줌
@@ -282,7 +294,7 @@
 			// Marker 객체 생성.
 			var marker = new Tmapv2.Marker({
 				position: new Tmapv2.LatLng(location_dict[checkbox_list[i]][1], location_dict[checkbox_list[i]][0]), //Marker의 중심좌표 설정. y, x
-				icon: "http://tmapapis.sktelecom.com/upload/tmap/marker/pin_b_m_"+ i +".png", // icon 아이콘 형식
+				icon: "http://tmapapis.sktelecom.com/upload/tmap/marker/pin_b_m_"+ (i+1) +".png", // icon 아이콘 형식
 				iconSize: new Tmapv2.Size(30, 45), // icon 사이즈 조절
 				label: checkbox_list[i], // Marker의 라벨.
 				fontColor: 'black'
@@ -404,7 +416,7 @@
 
 	// 체크박스 반영하기
 	function getValue(){
-        $("input[name=restau]:checked").each(function() { 
+      $("input[name=restau]:checked").each(function() { 
             var restau = $(this).val();
 			r_checkbox_list.push(restau)
     	});
@@ -412,7 +424,8 @@
             var photozo = $(this).val();
 			p_checkbox_list.push(photozo)
     	});
-	}
+   }
+
 </script>
 </head>
 
@@ -426,6 +439,10 @@
 </script>
 
 <body onload="initTmap()"> <!--함수 호출-->
+	<div class="typography-line" style="padding-left:0; display:None;" id="loading">
+		<h1>경로&nbsp생성중</h1>
+		<img src="{% static 'img/loading_4.gif' %}">
+  	</div>
 	<div id="first_table">
 		<center><table border='0' bgcolor="#444444">
 			<tr><td rowspan="5" style="width:880px; height:820px;">
@@ -435,14 +452,14 @@
 							<p style="font-size:130%;">
 								<span>🔸최단 경로:&nbsp</span><span id="how_route"></span><span>&nbsp 입니다.</span></p>
 							<p style="font-size:130%;">
-								<span>🔹총 길이:&nbsp</span><span id="how_km"></span><span>&nbsp km</span></p>
+								<span>🔹총 거리:&nbsp</span><span id="how_km"></span><span>&nbsp km</span></p>
 						</div>
 					</center>
 				</td>
 				<td style="height:30px;"></td>
 			</tr>
 			<tr>
-				<td style="width:400px; height:460px;">
+				<td style="width:420px; height:460px;">
 					<p><span style="font-size:140%;">&nbsp맛집&nbsp🍽</span></p>
 					<div>
 						<span><input type="checkbox" name="restau" value="r_first" style="white-space:nowrap;">

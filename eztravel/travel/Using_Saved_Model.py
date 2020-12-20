@@ -16,7 +16,7 @@ def model_load():
 
     # 클래스명 로드 (필수)
     labels_map = json.load(open('labels_map_final.txt'))
-    labels_map = [labels_map[str(i)] for i in range(38)]
+    labels_map = [labels_map[str(i)] for i in range(39)]
 
     # 텐서로 이미지 전처리 
     tf.executing_eagerly()
@@ -57,6 +57,25 @@ def testfunction(img):
     with torch.no_grad():
         logits = model(img)
     preds = torch.topk(logits, k=5).indices.squeeze(0).tolist()
+    print('pred: ', preds[0])
+    print(preds)
+    print(type(preds[0]))
+
+    print('*'*100)
+    percen_list = []
+    for idx in preds:
+        label = labels_map[idx]
+        prob = torch.softmax(logits, dim=1)[0, idx].item()
+        percen = round(prob*100, 2)
+        print('{:<75} ({:.2f}%)'.format(label, prob*100))
+        percen_list.append(percen)
+    print('percent: ', percen_list[0],'%')
+    print('*'*100)
+
+    if percen_list[0] < 70:
+        print('*****classification error*****')
+        preds[0] = 38
+        print(preds)
 
 def Selected_Place():
     global place

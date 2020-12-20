@@ -32,6 +32,8 @@ urlpatterns = [
 
     path('getmap/', views.getmap, name='getmap'),
     path('recommend/', views.recommend, name='recommend'),
+    path('repo/', views.repo, name='repo'),
+    path('reco/', views.reco, name='reco'),
     url(r'^post/(?P<pk>\d+)/', views.know_show), 
     url(r'^uimage/$', views.uimage, name='uimage'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 

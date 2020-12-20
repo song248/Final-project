@@ -5,10 +5,10 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx0bc558171c774e4ba754afa0476b3077"></script>
-    <script	src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script   src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script type="text/javascript">
-        //$("#loading").show();
-        //$("#first_table").hide();
+        $("#loading").show();
+        $("#first_table").hide();
         var map;
         var markers = [];
 
@@ -38,8 +38,6 @@
                 height: "800px" // map의 height 설정
                 });
 
-
-            addMarker(rec_route);
             console.log(rec_route, point_location);
             var distance = get_distance(rec_route, point_location); // A에서 B까지의 모든 거리
             console.log('distance', distance);
@@ -54,71 +52,67 @@
             console.log('shortest_route', shortest_route); // 최종 결과!
             
             moveCenter(point_location[shortest_route[0][0]][0], point_location[shortest_route[0][0]][1])
-
+            
             var how_route = "";
-			var route_order = shortest_route[0][0];
-			for (var i=1;i<shortest_route[0].length;i++) {
-                route_order += '<br>';
-				route_order += '↓<br>';
-				route_order += shortest_route[0][i];
-			}
-			how_route = route_order
+            var route_order = shortest_route[0][0];
+            for (var i=1;i<shortest_route[0].length;i++) {
+                    route_order += '<br>';
+                route_order += '↓<br>';
+                route_order += shortest_route[0][i];
+            }
+            how_route = route_order
             $('#how_route').html(how_route)
-
             $('#how_km').html("<span>&nbsp&nbsp🔹총 거리: &nbsp"+shortest_route[1].toFixed(2)+"km</span>")
-
+            
+            addMarker(shortest_route[0])
             // 선 그려주기
-			for (var i=0;i<shortest_route[0].length-1;i++) {
-				var drawInfoArr = [];
-				$.ajax({
-					type : "POST",
-					url : "https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result",
-					async : false,
-					data : {
-						"appKey" : "l7xx0bc558171c774e4ba754afa0476b3077",
-						"startX" : String(point_location[shortest_route[0][i]][1]),
-						"startY" : String(point_location[shortest_route[0][i]][0]),
-						"endX" : String(point_location[shortest_route[0][i+1]][1]),
-						"endY" : String(point_location[shortest_route[0][i+1]][0]),
-						"reqCoordType" : "WGS84GEO",
-						"resCoordType" : "EPSG3857",
-					},
-					success : function(response) {
-						var resultData = response.features;
+            for (var i=0;i<shortest_route[0].length-1;i++) {
+                var drawInfoArr = [];
+                $.ajax({
+                type : "POST",
+                url : "https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result",
+                async : false,
+                data : {
+                    "appKey" : "l7xx0bc558171c774e4ba754afa0476b3077",
+                    "startX" : String(point_location[shortest_route[0][i]][1]),
+                    "startY" : String(point_location[shortest_route[0][i]][0]),
+                    "endX" : String(point_location[shortest_route[0][i+1]][1]),
+                    "endY" : String(point_location[shortest_route[0][i+1]][0]),
+                    "reqCoordType" : "WGS84GEO",
+                    "resCoordType" : "EPSG3857",
+                },success : function(response) {
+                        var resultData = response.features;
 
-						for (var rd in resultData) { 
-							var geometry = resultData[rd].geometry;
-							
-							if (geometry.type == "LineString") {
-								for ( var j in geometry.coordinates) {
-                                    
-									// 경로들의 결과값들을 포인트 객체로 변환 
-									var latlng = new Tmapv2.Point(
-											geometry.coordinates[j][0],
-                                            geometry.coordinates[j][1]);
-                                    
-									// 포인트 객체를 받아 좌표값으로 변환
-									var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(latlng);
+                        for (var rd in resultData) { 
+                            var geometry = resultData[rd].geometry;
+                            
+                            if (geometry.type == "LineString") {
+                                for ( var j in geometry.coordinates) {
                                             
-									// 포인트객체의 정보로 좌표값 변환 객체로 저장
-									var convertChange = new Tmapv2.LatLng(
-											convertPoint._lat,
-                                            convertPoint._lng);
+                                // 경로들의 결과값들을 포인트 객체로 변환 
+                                var latlng = new Tmapv2.Point(
+                                        geometry.coordinates[j][0],
+                                                    geometry.coordinates[j][1]);
                                             
-									// 배열에 담기
-                                    drawInfoArr.push(convertChange);
-								}
-								drawLine(drawInfoArr, i);
-                                sleep(500);
-							}
-						}
-					},
-					beforeSend:function(){
-						console.log('beforesend')
-					},
-				});
-			}
-            //iwantyou()
+                                // 포인트 객체를 받아 좌표값으로 변환
+                                var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(latlng);
+                                                    
+                                // 포인트객체의 정보로 좌표값 변환 객체로 저장
+                                var convertChange = new Tmapv2.LatLng(
+                                        convertPoint._lat,
+                                                    convertPoint._lng);
+                                                    
+                                // 배열에 담기
+                                            drawInfoArr.push(convertChange);
+                                }
+                                drawLine(drawInfoArr, i);
+                                        sleep(500);
+                            }
+                        }
+                    }
+                });
+            }
+            iwantyou()
         }
 
         function iwantyou(){
@@ -132,13 +126,13 @@
             do ts2 = new Date().getTime(); while (ts2<ts1);
         }
             
-        function addMarker(rec_route) {
-            for (var i=0;i<rec_route.length;i++) {
+        function addMarker(shortest_route) {
+            for (var i=0;i<shortest_route.length;i++) {
                 var marker = new Tmapv2.Marker({
-                    position: new Tmapv2.LatLng(point_location[rec_route[i]][0], point_location[rec_route[i]][1]),
-                    icon: "http://tmapapis.sktelecom.com/upload/tmap/marker/pin_b_m_"+ i +".png",
+                    position: new Tmapv2.LatLng(point_location[shortest_route[i]][0], point_location[shortest_route[i]][1]),
+                    icon: "http://tmapapis.sktelecom.com/upload/tmap/marker/pin_b_m_"+ (i+1) +".png",
                     iconSize: new Tmapv2.Size(30, 45),
-                    label: rec_route[i],
+                    label: shortest_route[i],
                     fontColor: 'black'
                 });
                 marker.setMap(map);
@@ -201,25 +195,25 @@
         function get_route_distance(all_route, distance) {
             var rec_route_list = [];
 
-			for (var i=0; i<all_route.length;i++) {
-				var len_point_routes = 0;
+         for (var i=0; i<all_route.length;i++) {
+            var len_point_routes = 0;
 
-				for (var j=0; j<all_route[i].length-1;j++) {
-					var atob = all_route[i][j] +','+ all_route[i][j+1]
-					var len_point_route = distance[atob]
-					len_point_routes += len_point_route
-				}
-				rec_route_list.push([all_route[i], len_point_routes])
+            for (var j=0; j<all_route[i].length-1;j++) {
+               var atob = all_route[i][j] +','+ all_route[i][j+1]
+               var len_point_route = distance[atob]
+               len_point_routes += len_point_route
+            }
+            rec_route_list.push([all_route[i], len_point_routes])
             }
             return rec_route_list
         }
 
         function get_shortest_route(route_distance) {
             var shortest_route=['', 1000000000000000000]; // 저장하기 용
-			for (var i in route_distance) {
-				if (route_distance[i][1] < shortest_route[1]) {
-					shortest_route = route_distance[i]
-				}
+            for (var i in route_distance) {
+                if (route_distance[i][1] < shortest_route[1]) {
+                shortest_route = route_distance[i]
+                }
             }
             return shortest_route
         }
@@ -250,24 +244,27 @@
     </script>
 </head>
 
-<body onload="initTmap()">
-    
-    <div class="typography-line" style="padding-left:0; display:None;" id="loading">
-        <h1>추천 경로 생성중</h1>
-        <img src="{% static 'img/loading_4.gif' %}">
-    </div>
 
+<body onload="initTmap()">
     <div id="first_table">
-		<center><table border='0'>
+		<center><table border='0' bgcolor="#444444">
             <tr>
                 <td rowspan="4">
+                    <div class="typography-line" id="loading" 
+                        style="background-color: #444444; width:900px;height:800px;padding-left:0;" >
+                        <center>
+                            <br><br><br><br><br><br><br><br><br>
+                            <h1>추천 경로 생성중</h1>
+                            <img src="{% static 'img/loading_4.gif' %}">
+                        </center>
+                    </div>
                     <div id="map_div" style="color:black;"></div>
                 </td>
                 <td>
                     <span></span>
                 </td>
             </tr>
-            <tr bgcolor="#444444">
+            <tr>
                 <td style="width:250px;">
                     <center>
                         <p><br><span style="font-size:150%;">추천 관광코스<span style="font-size:180%;">🚙</span></p><br>
@@ -281,8 +278,10 @@
                 </center></td>
             </tr>
             <tr  bgcolor="#444444">
-                <td style="height: 300px;">
-                <span></span></td>
+                <td style="height: 160px;"><center>
+                    <a href="{% url 'uimage' %}" style="width:200px; font-weight:bold;" 
+                                class="btn btn-lg btn-primary btn-block btn-login font-weight-bold mb-2">다른 사진 업로드</a>
+                </center></td>
             </tr>
         </table></center>
     </div>

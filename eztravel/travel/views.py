@@ -59,7 +59,11 @@ def uimage(request):
             img_path = 'C:/Users/songtg/Desktop/Final_project/eztravel/media/' + uploaded_file_url
             print(uploaded_file_url)
             result = Using_Saved_Model.execute_model(img_path)
-            result = map_name(result)
+            print('##result: ', result)
+            if result == 'unknown':
+                pass
+            else:
+                result = map_name(result)
             print(result)
             file_url=fs.url(filename)
             context = {
@@ -105,14 +109,10 @@ def getmap(request):
     location_y = attraction['y'].tolist()
     attr = attraction['name'].tolist()[0]
     print('attr', attr)
-    # global rec_attr
-    # rec_attr = attr
 
     # 명소와 같은 지역을 찾는 것
     region = attraction['area'].tolist()[0]
     print('region', region)
-    # global rec_region
-    # rec_region = region
 
     # 명소와 가장 가까운 곳을 알려주기 위해
     r_sorted_list = []
@@ -206,8 +206,13 @@ def recommend(request):
         'dot_y': dot_y,
         'dot_x': dot_x,
     }
-
     return render(request, 'travel/recommend.html', context)
+
+def repo(request):
+    return render(request, 'travel/repo.html')
+
+def reco(request):
+    return render(request, 'travel/reco_3.html')
 
 result_dict = {
     'Skybay': '스카이베이 경포',

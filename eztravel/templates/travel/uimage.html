@@ -27,29 +27,22 @@
                 <td style="height:25px;"></td>
             </tr>
             <tr>
-                <!-- <td><div style="font-size:160%;">{{ form.as_p }}</div></td> -->
-                <!-- accpet는 파일 확장자라는 것 같다. 안써도 돌아가기는 함 -->
                 <td>
                     <input type="file" name="image" accept="image/*" id="id_image" onchange="javascript:document.getElementById('submit').submit();" hidden />
                     <label for="id_image"><img src="{% static 'img/upload.png' %}" style="width: 500px; height: 220px;"></img></label>
                 </td>
             </tr>
-            <!-- <tr><td colspan="2" style="height:15px;"></td></tr>
-            <tr>
-                <td colspan="2"><center>
-                    <button class="btn btn-lg btn-primary btn-block font-weight-bold mb-2"
-                        id="submit" type="submit" style="font-size:130%; width:200px;">업로드하기</button></center>
-                </td>
-            </tr> -->
         </table>
     </div>
 </form>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
     document.getElementById('id_image').onchange = function(e) {
         e.preventDefault();
         var form = $("#myForm")[0];
         var formData = new FormData(form);
+        var place;
         $.ajax({
             cache : false,
             type: "POST",
@@ -59,12 +52,25 @@
             data : formData,
             success:function(data){
                 place = data["result"]
-                console.log(place)
+                var temp_place="unknown";
+                console.log(place);
+                console.log(typeof(place));
+                console.log(temp_place);
+                console.log(typeof(temp_place));    
+                if (temp_place == place){
+                    console.log('dhkdhdk')
+                    var print_place="<span style='font-size:130%;'>분류가 어렵습니다.</span>";
+                    $('#predict').html(print_place);
+                }else{
+                    console.log('여기요 여기')
+                    var print_place="<span style='font-size:180%;'>"+place+"</span><span style='font-size:100%;'>(으)로 예측됩니다.</span>";
+                    $('#predict').html(print_place);
+                }
+
                 im_file = data["file_url"]
                 console.log(im_file)
                 var show_img = "<img src='"+im_file+"'width=500px, height=300px>"
                 $("#myForm").hide();
-                $('#predict').html(place);
                 $('#file_place').html(show_img);
                 $('#js_data_input').val(place)
             },
@@ -78,6 +84,7 @@
                 $("#showing").show();
                 $("#movetonext").show();
                 $("#loading").hide();
+                $('#js_data_input').val(place);
             },
         });
         return place
@@ -85,50 +92,8 @@
 
 </script>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script type="text/javascript">
-    var place;
-    var im_file;
-    $("#submit").click(function(e) {
-        e.preventDefault();
-        var form = $("#myForm")[0];
-        var formData = new FormData(form);
-        $.ajax({
-            cache : false,
-            type: "POST",
-            url: "uimage/",
-            processData: false,
-            contentType: false,
-            data : formData,
-            success:function(data){
-                place = data["result"]
-                console.log(place)
-                im_file = data["file_url"]
-                console.log(im_file)
-                var show_img = "<img src='"+im_file+"'width=500px, height=300px>"
-                $("#myForm").hide();
-                $('#predict').html(place);
-                $('#file_place').html(show_img);
-                $('#js_data_input').val(place)
-            },
-            beforeSend:function(){
-                console.log('beforesend')
-                $("#loading").show();
-                $("#myForm").hide();
-            },
-            complete:function(){
-                console.log('complete')
-                $("#showing").show();
-                $("#movetonext").show();
-                $("#loading").hide();
-            },
-        });
-        return place
-    });
-</script>
-
 <script>
-    $('#js_data_input').val(place);
+    
 </script>
 
 <div class="typography-line" style="padding-left:0; display:None;" id="loading">
@@ -138,7 +103,7 @@
 
 <div id="showing" style="display:None;">
     <br>
-    <div style="width:830px; height:550px; background-color: #444444;"><br><br>
+    <div style="border-radius: 2em; width:830px; height:550px; background-color: #444444;"><br><br>
         <div style="background-image: url(static/img/bgcolor.png); 
                         background-size: 545px 325px; width:545px; height:325px;">
             <div style="height:13px;"></div>
@@ -146,9 +111,8 @@
         </div>
         <div style="height:15px;"></div>
         <p style="font-size:130%;"><span>사진 속 장소는&nbsp</span>
-            <span style="font-size:180%;" id="predict">
-            </span>
-            <span>(으)로 예측됩니다.</span></p>
+            <span id="predict"></span>
+        </p>
     <div>
 </div>
 <div id="movetonext" style="display:None;"><center>
